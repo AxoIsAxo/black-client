@@ -53,10 +53,14 @@ The compiled mod lands in `build/libs/blackclient-1.0.0.jar` (use the non-`sourc
 | **Right Shift** | Open / close the hack menu  |
 | Esc / Close    | Close the menu (saves)      |
 
-In the menu you can:
+The menu is fully custom-drawn (no vanilla button styling) and groups the
+hacks into collapsible sections (**Combat**, **Movement**, **Render** — click
+a header to collapse/expand):
 
-- Toggle each hack ON/OFF.
-- Open a hack's settings page (CPS, range, speed, target filters, ...).
+- Click a hack row to toggle it ON/OFF, click the **>** at the row end to open
+  its settings, hover a row for its description.
+- Settings screens use the same custom look: toggle rows, cycle buttons and
+  draggable sliders.
 
 Changes are saved automatically to `.minecraft/blackclient/config.json` and
 restored on the next launch.

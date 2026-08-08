@@ -1,55 +1,217 @@
 package com.blackclient.gui;
 
 import com.blackclient.config.Config;
+import com.blackclient.gui.GuiUtil.Rect;
 import com.blackclient.hack.Hack;
+import com.blackclient.hack.HackCategory;
 import com.blackclient.hack.HackManager;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * Main menu: one row per hack with an "open settings" button and an
- * ON/OFF toggle. Opened by pressing right Shift in game.
+ * Custom main menu: hacks grouped into collapsible category sections, drawn
+ * entirely with custom rectangles/text (no vanilla widget styling). Clicking
+ * a hack row toggles it, clicking the ">" at the row end opens its settings,
+ * clicking a header collapses/expands the group. Supports scrolling and shows
+ * the hovered hack's description as a tooltip.
  */
 public class HackMenuScreen extends Screen {
+
+    private static final int PANEL_WIDTH = 232;
+    private static final int TITLE_HEIGHT = 24;
+    private static final int HEADER_HEIGHT = 21;
+    private static final int ROW_HEIGHT = 19;
+    private static final int GAP = 5;
+    private static final int SETTINGS_BUTTON_WIDTH = 22;
+
+    /** Remember collapse state for the whole session. */
+    private static final Map<HackCategory, Boolean> EXPANDED = new EnumMap<>(HackCategory.class);
+
+    private record Clickable(Rect bounds, Runnable action) {
+    }
+
+    private record HeaderEntry(HackCategory category, Rect bounds) {
+    }
+
+    private record RowEntry(Hack hack, Rect bounds, Rect settingsBounds) {
+    }
+
+    private final List<Clickable> clickables = new ArrayList<>();
+    private final List<HeaderEntry> headers = new ArrayList<>();
+    private final List<RowEntry> rows = new ArrayList<>();
+    private double scroll;
+    private int panelX;
+    private int panelY;
+    private int panelHeight;
 
     public HackMenuScreen() {
         super(Text.literal("Black Client"));
     }
 
     @Override
-    protected void init() {
-        int x = width / 2 - 100;
-        int y = height / 2 - 60;
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        buildLayout();
 
-        for (Hack hack : HackManager.INSTANCE.getHacks()) {
-            addDrawableChild(ButtonWidget.builder(
-                            Text.literal(hack.getName()),
-                            button -> client.setScreen(new HackSettingsScreen(hack)))
-                    .dimensions(x, y, 130, 20)
-                    .build());
+        GuiUtil.rect(context, 0, 0, width, height, 0x55000000);
+        GuiUtil.rect(context, panelX, panelY, PANEL_WIDTH, panelHeight, GuiUtil.BG);
+        GuiUtil.border(context, panelX, panelY, PANEL_WIDTH, panelHeight, GuiUtil.BORDER);
+        GuiUtil.textCentered(context, client.textRenderer, "Black Client", panelX + PANEL_WIDTH / 2, panelY + 7, GuiUtil.ACCENT);
 
-            addDrawableChild(ButtonWidget.builder(
-                            enabledText(hack),
-                            button -> {
-                                hack.toggle();
-                                button.setMessage(enabledText(hack));
-                                Config.INSTANCE.save();
-                            })
-                    .dimensions(x + 135, y, 65, 20)
-                    .build());
-            y += 26;
+        context.enableScissor(panelX + 5, panelY + TITLE_HEIGHT, panelX + PANEL_WIDTH - 5, panelY + panelHeight - 4);
+        for (HeaderEntry header : headers) {
+            drawHeader(context, header, mouseX, mouseY);
         }
+        for (RowEntry row : rows) {
+            drawRow(context, row, mouseX, mouseY);
+        }
+        context.disableScissor();
 
-        addDrawableChild(ButtonWidget.builder(
-                        Text.literal("Close"),
-                        button -> close())
-                .dimensions(x, y + 8, 200, 20)
-                .build());
+        drawTooltip(context, mouseX, mouseY);
     }
 
-    private static Text enabledText(Hack hack) {
-        return Text.literal(hack.isEnabled() ? "\u00A7aON" : "\u00A7cOFF");
+    private void drawHeader(DrawContext context, HeaderEntry header, int mouseX, int mouseY) {
+        Rect bounds = header.bounds();
+        int color = (header.category().getColor() & 0x00FFFFFF) | 0x44000000;
+        GuiUtil.rect(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), color);
+        if (GuiUtil.hovered(mouseX, mouseY, bounds)) {
+            GuiUtil.rect(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), GuiUtil.HOVER);
+        }
+
+        List<Hack> hacks = hacksIn(header.category());
+        long enabled = hacks.stream().filter(Hack::isEnabled).count();
+        String title = header.category().getName() + "  (" + enabled + "/" + hacks.size() + ")";
+        GuiUtil.text(context, client.textRenderer, title, bounds.x() + 6, bounds.y() + 5, GuiUtil.TEXT);
+
+        boolean expanded = isExpanded(header.category());
+        String indicator = expanded ? "-" : "+";
+        GuiUtil.text(context, client.textRenderer, indicator,
+                bounds.x() + bounds.w() - 14, bounds.y() + 5, GuiUtil.MUTED);
+    }
+
+    private void drawRow(DrawContext context, RowEntry row, int mouseX, int mouseY) {
+        Rect bounds = row.bounds();
+        if (GuiUtil.hovered(mouseX, mouseY, bounds)) {
+            GuiUtil.rect(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), GuiUtil.HOVER);
+        }
+        GuiUtil.text(context, client.textRenderer, row.hack().getName(), bounds.x() + 6, bounds.y() + 5, GuiUtil.TEXT);
+
+        String status = row.hack().isEnabled() ? "ON" : "OFF";
+        int statusColor = row.hack().isEnabled() ? GuiUtil.ON : GuiUtil.OFF;
+        int statusX = bounds.x() + bounds.w() - SETTINGS_BUTTON_WIDTH - client.textRenderer.getWidth(status) - 8;
+        GuiUtil.text(context, client.textRenderer, status, statusX, bounds.y() + 5, statusColor);
+
+        Rect settings = row.settingsBounds();
+        if (GuiUtil.hovered(mouseX, mouseY, settings)) {
+            GuiUtil.rect(context, settings.x(), settings.y(), settings.w(), settings.h(), GuiUtil.HOVER);
+        }
+        GuiUtil.textCentered(context, client.textRenderer, ">", settings.x() + settings.w() / 2, settings.y() + 5, GuiUtil.MUTED);
+    }
+
+    private void drawTooltip(DrawContext context, int mouseX, int mouseY) {
+        for (RowEntry row : rows) {
+            if (GuiUtil.hovered(mouseX, mouseY, row.bounds())) {
+                String description = row.hack().getDescription();
+                int textWidth = client.textRenderer.getWidth(description);
+                int x = panelX + PANEL_WIDTH / 2 - textWidth / 2;
+                int y = panelY + panelHeight - 14;
+                GuiUtil.rect(context, x - 4, y - 2, textWidth + 8, 10, 0xE0000000);
+                GuiUtil.text(context, client.textRenderer, description, x, y, GuiUtil.MUTED);
+                return;
+            }
+        }
+    }
+
+    private void buildLayout() {
+        clickables.clear();
+        headers.clear();
+        rows.clear();
+
+        panelX = (width - PANEL_WIDTH) / 2;
+        panelY = 30;
+
+        int x = panelX + 6;
+        int contentWidth = PANEL_WIDTH - 12;
+        int y = panelY + TITLE_HEIGHT - (int) scroll;
+
+        for (HackCategory category : HackCategory.values()) {
+            List<Hack> hacks = hacksIn(category);
+            if (hacks.isEmpty()) {
+                continue;
+            }
+
+            Rect header = new Rect(x, y, contentWidth, HEADER_HEIGHT);
+            headers.add(new HeaderEntry(category, header));
+            clickables.add(new Clickable(header, () -> toggleExpanded(category)));
+            y += HEADER_HEIGHT;
+
+            if (isExpanded(category)) {
+                for (Hack hack : hacks) {
+                    Rect row = new Rect(x, y, contentWidth, ROW_HEIGHT);
+                    Rect settingsButton = new Rect(x + contentWidth - SETTINGS_BUTTON_WIDTH, y, SETTINGS_BUTTON_WIDTH, ROW_HEIGHT);
+                    rows.add(new RowEntry(hack, row, settingsButton));
+                    clickables.add(new Clickable(row, () -> toggleHack(hack)));
+                    clickables.add(new Clickable(settingsButton, () -> client.setScreen(new HackSettingsScreen(hack))));
+                    y += ROW_HEIGHT;
+                }
+            }
+            y += GAP;
+        }
+
+        int contentHeight = y - panelY + 8;
+        panelHeight = Math.min(contentHeight, height - panelY - 20);
+        scroll = contentHeight <= panelHeight
+                ? 0
+                : Math.max(0, Math.min(scroll, contentHeight - panelHeight));
+    }
+
+    private List<Hack> hacksIn(HackCategory category) {
+        List<Hack> result = new ArrayList<>();
+        for (Hack hack : HackManager.INSTANCE.getHacks()) {
+            if (hack.getCategory() == category) {
+                result.add(hack);
+            }
+        }
+        return result;
+    }
+
+    private void toggleHack(Hack hack) {
+        hack.toggle();
+        Config.INSTANCE.save();
+    }
+
+    private void toggleExpanded(HackCategory category) {
+        EXPANDED.put(category, !isExpanded(category));
+    }
+
+    private boolean isExpanded(HackCategory category) {
+        return EXPANDED.getOrDefault(category, true);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        buildLayout();
+        if (button == 0) {
+            for (Clickable clickable : clickables) {
+                if (clickable.bounds().contains((int) mouseX, (int) mouseY)) {
+                    clickable.action().run();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        scroll -= verticalAmount * 12.0;
+        buildLayout(); // clamp
+        return true;
     }
 
     @Override

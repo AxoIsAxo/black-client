@@ -15,6 +15,7 @@ public abstract class Hack {
     private final String name;
     private final String description;
     private final List<Setting> settings = new ArrayList<>();
+    private HackCategory category;
     private boolean enabled;
 
     protected Hack(String name, String description) {
@@ -28,6 +29,14 @@ public abstract class Hack {
 
     public String getDescription() {
         return description;
+    }
+
+    public HackCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(HackCategory category) {
+        this.category = category;
     }
 
     public boolean isEnabled() {

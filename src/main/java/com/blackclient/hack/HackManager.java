@@ -19,19 +19,24 @@ public enum HackManager {
     private final List<Hack> hacks = new ArrayList<>();
 
     public void registerDefaults() {
-        register(new AutoClicker());
-        register(new KillAura());
-        register(new HealthBars());
-        register(new AimBot());
-        register(new NoSlowdown());
-        register(new NoFall());
-        register(new NightVision());
-        register(new Reach());
-        register(new Tunneler());
+        register(new AutoClicker(), HackCategory.COMBAT);
+        register(new KillAura(), HackCategory.COMBAT);
+        register(new AimBot(), HackCategory.COMBAT);
+        register(new Reach(), HackCategory.COMBAT);
+        register(new NoSlowdown(), HackCategory.MOVEMENT);
+        register(new NoFall(), HackCategory.MOVEMENT);
+        register(new Tunneler(), HackCategory.MOVEMENT);
+        register(new NightVision(), HackCategory.RENDER);
+        register(new HealthBars(), HackCategory.RENDER);
     }
 
     public void register(Hack hack) {
         hacks.add(hack);
+    }
+
+    private void register(Hack hack, HackCategory category) {
+        hack.setCategory(category);
+        register(hack);
     }
 
     public List<Hack> getHacks() {
