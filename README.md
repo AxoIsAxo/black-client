@@ -17,6 +17,10 @@ configurable in-game menu, opened with **right Shift**, with three features:
   the onGround flag in movement packets so the server never counts the fall
   (works on servers); **Client** mode only cancels the local damage
   application.
+- **NightVision** — full brightness at all times, implemented in the lightmap
+  itself (no status effect applied to the player).
+- **Reach** — extends block and entity interaction range (crosshair reach,
+  attacks, block breaking/placing).
 - **Tunneler** — takes control of your player: locks your camera to the
   direction you were facing and walks you forward while mining a 1-wide,
   N-tall tunnel ahead (bridging 1-block drops if you have block items).
