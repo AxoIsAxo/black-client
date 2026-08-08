@@ -6,6 +6,7 @@
     "ClientPlayerEntityMixin",
     "ClientPlayerInteractionManagerAccessor",
     "CobwebBlockMixin",
+    "InGameHudMixin",
     "KeyboardInputMixin",
     "LightmapTextureManagerMixin",
     "MinecraftClientMixin",
