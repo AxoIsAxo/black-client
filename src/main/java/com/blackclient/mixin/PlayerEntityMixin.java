@@ -2,6 +2,7 @@ package com.blackclient.mixin;
 
 import com.blackclient.hack.HackManager;
 import com.blackclient.hack.impl.NoFall;
+import com.blackclient.hack.impl.Reach;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
@@ -28,6 +29,22 @@ public abstract class PlayerEntityMixin {
         NoFall noFall = HackManager.INSTANCE.get(NoFall.class);
         if (noFall != null && noFall.isEnabled()) {
             cir.setReturnValue(false);
+        }
+    }
+
+    @Inject(method = "getBlockInteractionRange", at = @At("RETURN"), cancellable = true)
+    private void blackclient$reachBlock(CallbackInfoReturnable<Double> cir) {
+        Reach reach = HackManager.INSTANCE.get(Reach.class);
+        if (reach != null && reach.isEnabled()) {
+            cir.setReturnValue(cir.getReturnValueD() + reach.getExtraRange());
+        }
+    }
+
+    @Inject(method = "getEntityInteractionRange", at = @At("RETURN"), cancellable = true)
+    private void blackclient$reachEntity(CallbackInfoReturnable<Double> cir) {
+        Reach reach = HackManager.INSTANCE.get(Reach.class);
+        if (reach != null && reach.isEnabled()) {
+            cir.setReturnValue(cir.getReturnValueD() + reach.getExtraRange());
         }
     }
 }

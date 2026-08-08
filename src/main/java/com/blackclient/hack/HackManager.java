@@ -6,6 +6,7 @@ import com.blackclient.hack.impl.KillAura;
 import com.blackclient.hack.impl.NightVision;
 import com.blackclient.hack.impl.NoFall;
 import com.blackclient.hack.impl.NoSlowdown;
+import com.blackclient.hack.impl.Reach;
 import com.blackclient.hack.impl.Tunneler;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public enum HackManager {
         register(new NoSlowdown());
         register(new NoFall());
         register(new NightVision());
+        register(new Reach());
         register(new Tunneler());
     }
 
