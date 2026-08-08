@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Fabric
+run/
+
+# Agent tooling state
+.reasonix/
+
+# OS
+.DS_Store
