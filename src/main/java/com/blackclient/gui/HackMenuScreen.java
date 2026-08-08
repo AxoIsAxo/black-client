@@ -164,8 +164,10 @@ public class HackMenuScreen extends Screen {
                     Rect row = new Rect(x, y, contentWidth, ROW_HEIGHT);
                     Rect settingsButton = new Rect(x + contentWidth - SETTINGS_BUTTON_WIDTH, y, SETTINGS_BUTTON_WIDTH, ROW_HEIGHT);
                     rows.add(new RowEntry(hack, row, settingsButton));
-                    clickables.add(new Clickable(row, () -> toggleHack(hack)));
+                    // The settings button overlaps the row, so it must be
+                    // checked first or the row toggle swallows the click.
                     clickables.add(new Clickable(settingsButton, () -> client.setScreen(new HackSettingsScreen(hack))));
+                    clickables.add(new Clickable(row, () -> toggleHack(hack)));
                     y += ROW_HEIGHT;
                 }
             }
