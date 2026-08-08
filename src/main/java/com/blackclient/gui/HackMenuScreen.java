@@ -135,6 +135,15 @@ public class HackMenuScreen extends Screen {
         panelX = (width - PANEL_WIDTH) / 2;
         panelY = 30;
 
+        // Natural content height is independent of the scroll offset; clamping
+        // against a height that already shrank by scroll made every scroll
+        // snap back toward the top.
+        int naturalHeight = contentHeight();
+        panelHeight = Math.min(naturalHeight, height - panelY - 20);
+        scroll = naturalHeight <= panelHeight
+                ? 0
+                : Math.max(0, Math.min(scroll, naturalHeight - panelHeight));
+
         int x = panelX + 6;
         int contentWidth = PANEL_WIDTH - 12;
         int y = panelY + TITLE_HEIGHT - (int) scroll;
@@ -162,12 +171,22 @@ public class HackMenuScreen extends Screen {
             }
             y += GAP;
         }
+    }
 
-        int contentHeight = y - panelY + 8;
-        panelHeight = Math.min(contentHeight, height - panelY - 20);
-        scroll = contentHeight <= panelHeight
-                ? 0
-                : Math.max(0, Math.min(scroll, contentHeight - panelHeight));
+    private int contentHeight() {
+        int h = TITLE_HEIGHT + 8;
+        for (HackCategory category : HackCategory.values()) {
+            List<Hack> hacks = hacksIn(category);
+            if (hacks.isEmpty()) {
+                continue;
+            }
+            h += HEADER_HEIGHT;
+            if (isExpanded(category)) {
+                h += hacks.size() * ROW_HEIGHT;
+            }
+            h += GAP;
+        }
+        return h;
     }
 
     private List<Hack> hacksIn(HackCategory category) {
