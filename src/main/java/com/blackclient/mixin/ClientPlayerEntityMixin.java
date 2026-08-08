@@ -36,8 +36,8 @@ public abstract class ClientPlayerEntityMixin {
     }
 
     @Redirect(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isOnGround()Z"))
-    private boolean blackclient$noFallOnGround(boolean original) {
-        if (original) {
+    private boolean blackclient$noFallOnGround(ClientPlayerEntity player) {
+        if (player.isOnGround()) {
             return true;
         }
         NoFall noFall = HackManager.INSTANCE.get(NoFall.class);
@@ -47,7 +47,6 @@ public abstract class ClientPlayerEntityMixin {
         // Only lie about being on the ground while actually falling through
         // air; riding, elytra flight and swimming keep their real state so we
         // do not disturb those movement modes.
-        ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
         if (player.hasVehicle() || player.isFallFlying() || player.isTouchingWater()) {
             return false;
         }
