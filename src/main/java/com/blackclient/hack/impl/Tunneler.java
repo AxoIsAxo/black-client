@@ -81,15 +81,14 @@ public class Tunneler extends Hack {
 
         boolean blockedByLava = stopAtLava.getValue() && isLavaNearby(mc.world, front);
         if (!blockedByLava) {
-            mineTunnel(mc, player, front, dx, dz);
+            mineTunnel(mc, player, front);
             bridgeGap(mc, player, front);
         }
         return !blockedByLava;
     }
 
-    private void mineTunnel(MinecraftClient mc, ClientPlayerEntity player, BlockPos front, int dx, int dz) {
+    private void mineTunnel(MinecraftClient mc, ClientPlayerEntity player, BlockPos front) {
         ClientPlayerInteractionManager interaction = mc.interactionManager;
-        Direction face = Direction.fromVector(-dx, 0, -dz);
 
         // Mine one block per tick: lowest non-air block of the front column first.
         for (int i = 0; i < height.getValueInt(); i++) {
@@ -101,6 +100,11 @@ public class Tunneler extends Hack {
             if (state.calcBlockBreakingDelta(player, mc.world, target) <= 0.0F) {
                 continue; // unbreakable (bedrock, ...)
             }
+            // Direction.fromVector(int,int,int) returns null for diagonal
+            // vectors (it only handles axis-aligned ones), which would crash
+            // the netty encoder when the packet is sent. Compute the face
+            // toward the player instead, which is always valid.
+            Direction face = faceTowardPlayer(player, target);
             ClientPlayerInteractionManagerAccessor accessor = (ClientPlayerInteractionManagerAccessor) interaction;
             if (accessor.blackclient$isCurrentlyBreaking(target)) {
                 interaction.updateBlockBreakingProgress(target, face);
@@ -109,6 +113,25 @@ public class Tunneler extends Hack {
             }
             return;
         }
+    }
+
+    /** The face of {@code pos} that points back toward the player's eyes. Never returns null. */
+    private static Direction faceTowardPlayer(ClientPlayerEntity player, BlockPos pos) {
+        Vec3d from = Vec3d.ofCenter(pos);
+        Vec3d to = player.getEyePos();
+        double dx = to.x - from.x;
+        double dy = to.y - from.y;
+        double dz = to.z - from.z;
+        double ax = Math.abs(dx);
+        double ay = Math.abs(dy);
+        double az = Math.abs(dz);
+        if (ay >= ax && ay >= az) {
+            return dy > 0 ? Direction.UP : Direction.DOWN;
+        }
+        if (az >= ax) {
+            return dz > 0 ? Direction.SOUTH : Direction.NORTH;
+        }
+        return dx > 0 ? Direction.EAST : Direction.WEST;
     }
 
     private void bridgeGap(MinecraftClient mc, ClientPlayerEntity player, BlockPos front) {
