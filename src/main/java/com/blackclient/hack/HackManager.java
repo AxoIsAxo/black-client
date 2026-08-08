@@ -3,6 +3,7 @@ package com.blackclient.hack;
 import com.blackclient.hack.impl.AimBot;
 import com.blackclient.hack.impl.AutoClicker;
 import com.blackclient.hack.impl.KillAura;
+import com.blackclient.hack.impl.NightVision;
 import com.blackclient.hack.impl.NoFall;
 import com.blackclient.hack.impl.NoSlowdown;
 import com.blackclient.hack.impl.Tunneler;
@@ -21,6 +22,7 @@ public enum HackManager {
         register(new AimBot());
         register(new NoSlowdown());
         register(new NoFall());
+        register(new NightVision());
         register(new Tunneler());
     }
 
