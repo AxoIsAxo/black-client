@@ -6,6 +6,8 @@ import com.blackclient.hack.impl.NoSlowdown;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
@@ -14,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * <ul>
  *   <li>NoSlowdown: neutralises the using-item movement slowdown in
  *       {@code tickMovement()} (the two 0.2F constants are the only ones in
- *       the method, so a constant redirect is safe).</li>
+ *       the method, so a {@code @ModifyConstant} is safe).</li>
  *   <li>NoFall: spoofs onGround=true in the movement packets while falling,
  *       so the server never accumulates fall distance. The methodref owner
  *       in the bytecode is {@code ClientPlayerEntity} even though
@@ -24,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(ClientPlayerEntity.class)
 public abstract class ClientPlayerEntityMixin {
 
-    @Redirect(method = "tickMovement", at = @At(value = "CONSTANT", args = "floatValue=0.2F"))
+    @ModifyConstant(method = "tickMovement", constant = @Constant(floatValue = 0.2F))
     private float blackclient$noSlowdownUsingItems(float original) {
         NoSlowdown noSlowdown = HackManager.INSTANCE.get(NoSlowdown.class);
         if (noSlowdown != null && noSlowdown.isEnabled() && noSlowdown.shouldRemoveItemSlowdown()) {
