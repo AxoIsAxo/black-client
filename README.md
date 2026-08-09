@@ -31,6 +31,11 @@ configurable in-game menu, opened with **right Shift**, with three features:
   auto-start when falling. KillAura and AimBot also have an **Avoid NPCs**
   toggle (on by default) that skips server-spawned player NPCs (entities with
   player skins that are not in the tab list).
+- **Speed** — multiplies your base movement speed (applies to walking and
+  sprinting; restored when disabled).
+- **NoHunger** — stops hunger from draining: exhaustion is cancelled for the
+  local player (works fully in single-player; on servers the food bar is kept
+  full client-side but the server still drains hunger).
 - **Keybinds** — every hack's settings page has a **Keybind** row: click it,
   press a key to bind (Esc cancels), right-click to clear. The key toggles the
   hack in-game (edge-triggered) and is saved to the config.
