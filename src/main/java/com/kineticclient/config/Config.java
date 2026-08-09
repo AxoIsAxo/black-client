@@ -2,6 +2,7 @@ package com.kineticclient.config;
 
 import com.kineticclient.hack.Hack;
 import com.kineticclient.hack.HackManager;
+import com.kineticclient.hack.impl.Keypresser;
 import com.kineticclient.hack.setting.BoolSetting;
 import com.kineticclient.hack.setting.ModeSetting;
 import com.kineticclient.hack.setting.NumberSetting;
@@ -56,6 +57,12 @@ public enum Config {
                 if (keybind != null && keybind.isJsonPrimitive()) {
                     hack.setKeyBind(keybind.getAsInt());
                 }
+                if (hack instanceof Keypresser keypresser) {
+                    JsonElement heldKey = hackJson.get("heldKey");
+                    if (heldKey != null && heldKey.isJsonPrimitive()) {
+                        keypresser.setHeldKey(heldKey.getAsInt());
+                    }
+                }
                 JsonObject settingsJson = hackJson.getAsJsonObject("settings");
                 if (settingsJson == null) {
                     continue;
@@ -87,6 +94,9 @@ public enum Config {
             JsonObject hackJson = new JsonObject();
             hackJson.addProperty("enabled", hack.isEnabled());
             hackJson.addProperty("keybind", hack.getKeyBind());
+            if (hack instanceof Keypresser keypresser) {
+                hackJson.addProperty("heldKey", keypresser.getHeldKey());
+            }
             JsonObject settingsJson = new JsonObject();
             for (Setting setting : hack.getSettings()) {
                 if (setting instanceof BoolSetting bool) {

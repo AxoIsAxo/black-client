@@ -11,6 +11,7 @@
     "CobwebBlockMixin",
     "FluidRendererMixin",
     "InGameHudMixin",
+    "InputUtilMixin",
     "KeyboardInputMixin",
     "LightmapTextureManagerMixin",
     "LivingEntityMixin",

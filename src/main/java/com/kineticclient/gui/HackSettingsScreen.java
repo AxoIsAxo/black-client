@@ -3,6 +3,7 @@ package com.kineticclient.gui;
 import com.kineticclient.config.Config;
 import com.kineticclient.gui.GuiUtil.Rect;
 import com.kineticclient.hack.Hack;
+import com.kineticclient.hack.impl.Keypresser;
 import com.kineticclient.hack.setting.BoolSetting;
 import com.kineticclient.hack.setting.ModeSetting;
 import com.kineticclient.hack.setting.NumberSetting;
@@ -53,7 +54,9 @@ public class HackSettingsScreen extends Screen {
     private Rect backBounds;
     private Rect enabledBounds;
     private Rect keybindBounds;
+    private Rect holdKeyBounds;
     private boolean listeningKeybind;
+    private boolean listeningHoldKey;
     private int panelX;
     private int panelY;
     private int panelHeight;
@@ -86,6 +89,11 @@ public class HackSettingsScreen extends Screen {
         // Keybind
         drawKeybind(context, keybindBounds, mouseX, mouseY);
 
+        // Keypresser: the key it holds
+        if (holdKeyBounds != null) {
+            drawHoldKey(context, holdKeyBounds, mouseX, mouseY);
+        }
+
         for (ToggleRow row : toggles) {
             drawToggle(context, row.bounds(), row.label(), row.value(), mouseX, mouseY);
         }
@@ -113,6 +121,20 @@ public class HackSettingsScreen extends Screen {
             int cursorX = bounds.x() + 3 + client.textRenderer.getWidth(display);
             GuiUtil.rect(context, cursorX, boxY + 2, 1, 8, GuiUtil.ACCENT);
         }
+    }
+
+    private void drawHoldKey(DrawContext context, Rect bounds, int mouseX, int mouseY) {
+        boolean hovered = GuiUtil.hovered(mouseX, mouseY, bounds);
+        if (hovered || listeningHoldKey) {
+            GuiUtil.rect(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), GuiUtil.HOVER);
+            GuiUtil.glitchBars(context, bounds.x() + 1, bounds.y() + 1, bounds.w() - 2, bounds.h() - 2, System.currentTimeMillis(), 73);
+        }
+        GuiUtil.text(context, client.textRenderer, "Hold key", bounds.x() + 4, bounds.y() + 5, GuiUtil.TEXT);
+        int heldKey = hack instanceof Keypresser keypresser ? keypresser.getHeldKey() : -1;
+        String value = listeningHoldKey ? "Press a key..." : keyName(heldKey);
+        int valueColor = listeningHoldKey ? GuiUtil.ACCENT : (heldKey == -1 ? GuiUtil.MUTED : GuiUtil.TEXT);
+        int valueX = bounds.x() + bounds.w() - client.textRenderer.getWidth(value) - 6;
+        GuiUtil.text(context, client.textRenderer, value, valueX, bounds.y() + 5, valueColor);
     }
 
     private void drawButton(DrawContext context, Rect bounds, String label, int mouseX, int mouseY) {
@@ -187,6 +209,13 @@ public class HackSettingsScreen extends Screen {
         clickables.add(new Clickable(keybindBounds, () -> listeningKeybind = true));
         y += TOGGLE_HEIGHT + GAP;
 
+        // Keypresser: a second row to set the key it should hold.
+        if (hack instanceof Keypresser) {
+            holdKeyBounds = new Rect(x, y, contentWidth, TOGGLE_HEIGHT);
+            clickables.add(new Clickable(holdKeyBounds, () -> listeningHoldKey = true));
+            y += TOGGLE_HEIGHT + GAP;
+        }
+
         for (Setting setting : hack.getSettings()) {
             if (setting instanceof BoolSetting bool) {
                 Rect bounds = new Rect(x, y, contentWidth, TOGGLE_HEIGHT);
@@ -231,6 +260,15 @@ public class HackSettingsScreen extends Screen {
             listeningKeybind = false;
             return true;
         }
+        // Right-click the hold-key row to clear it.
+        if (button == 2 && holdKeyBounds != null && holdKeyBounds.contains((int) mouseX, (int) mouseY)) {
+            if (hack instanceof Keypresser keypresser) {
+                keypresser.setHeldKey(-1);
+                Config.INSTANCE.save();
+            }
+            listeningHoldKey = false;
+            return true;
+        }
         if (button == 0) {
             // Text fields: clicking one focuses it, clicking elsewhere unfocuses.
             boolean clickedField = false;
@@ -250,6 +288,9 @@ public class HackSettingsScreen extends Screen {
             // Clicking anywhere else cancels keybind listening.
             if (listeningKeybind && !keybindBounds.contains((int) mouseX, (int) mouseY)) {
                 listeningKeybind = false;
+            }
+            if (listeningHoldKey && holdKeyBounds != null && !holdKeyBounds.contains((int) mouseX, (int) mouseY)) {
+                listeningHoldKey = false;
             }
             for (Clickable clickable : clickables) {
                 if (clickable.bounds().contains((int) mouseX, (int) mouseY)) {
@@ -279,6 +320,16 @@ public class HackSettingsScreen extends Screen {
             } else if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER || keyCode == GLFW.GLFW_KEY_ESCAPE) {
                 focusedText = null;
                 Config.INSTANCE.save();
+            }
+            return true;
+        }
+        if (listeningHoldKey) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                listeningHoldKey = false; // cancel without setting
+            } else if (hack instanceof Keypresser keypresser) {
+                keypresser.setHeldKey(keyCode);
+                Config.INSTANCE.save();
+                listeningHoldKey = false;
             }
             return true;
         }
