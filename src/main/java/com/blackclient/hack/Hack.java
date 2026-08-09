@@ -17,6 +17,7 @@ public abstract class Hack {
     private final List<Setting> settings = new ArrayList<>();
     private HackCategory category;
     private boolean enabled;
+    private int keyBind = -1;
 
     protected Hack(String name, String description) {
         this.name = name;
@@ -37,6 +38,15 @@ public abstract class Hack {
 
     public void setCategory(HackCategory category) {
         this.category = category;
+    }
+
+    /** GLFW key code that toggles this hack, or -1 when unbound. */
+    public int getKeyBind() {
+        return keyBind;
+    }
+
+    public void setKeyBind(int keyBind) {
+        this.keyBind = keyBind;
     }
 
     public boolean isEnabled() {

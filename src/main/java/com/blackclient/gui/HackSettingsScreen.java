@@ -9,7 +9,9 @@ import com.blackclient.hack.setting.NumberSetting;
 import com.blackclient.hack.setting.Setting;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,8 @@ public class HackSettingsScreen extends Screen {
     private final List<ModeRow> modes = new ArrayList<>();
     private Rect backBounds;
     private Rect enabledBounds;
+    private Rect keybindBounds;
+    private boolean listeningKeybind;
     private int panelX;
     private int panelY;
     private int panelHeight;
@@ -65,6 +69,9 @@ public class HackSettingsScreen extends Screen {
 
         // Enabled toggle
         drawToggle(context, enabledBounds, "Enabled", hack.isEnabled(), mouseX, mouseY);
+
+        // Keybind
+        drawKeybind(context, keybindBounds, mouseX, mouseY);
 
         for (ToggleRow row : toggles) {
             drawToggle(context, row.bounds(), row.label(), row.value(), mouseX, mouseY);
@@ -100,6 +107,26 @@ public class HackSettingsScreen extends Screen {
         GuiUtil.text(context, client.textRenderer, state, stateX, bounds.y() + 5, stateColor);
     }
 
+    private void drawKeybind(DrawContext context, Rect bounds, int mouseX, int mouseY) {
+        boolean hovered = GuiUtil.hovered(mouseX, mouseY, bounds);
+        if (hovered || listeningKeybind) {
+            GuiUtil.rect(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), GuiUtil.HOVER);
+            GuiUtil.glitchBars(context, bounds.x() + 1, bounds.y() + 1, bounds.w() - 2, bounds.h() - 2, System.currentTimeMillis(), 67);
+        }
+        GuiUtil.text(context, client.textRenderer, "Keybind", bounds.x() + 4, bounds.y() + 5, GuiUtil.TEXT);
+        String value = listeningKeybind ? "Press a key..." : keyName(hack.getKeyBind());
+        int valueColor = listeningKeybind ? GuiUtil.ACCENT : (hack.getKeyBind() == -1 ? GuiUtil.MUTED : GuiUtil.TEXT);
+        int valueX = bounds.x() + bounds.w() - client.textRenderer.getWidth(value) - 6;
+        GuiUtil.text(context, client.textRenderer, value, valueX, bounds.y() + 5, valueColor);
+    }
+
+    private static String keyName(int keyCode) {
+        if (keyCode == -1) {
+            return "None";
+        }
+        return InputUtil.fromKeyCode(keyCode, 0).getLocalizedText().getString();
+    }
+
     private void buildLayout() {
         clickables.clear();
         sliders.clear();
@@ -122,6 +149,10 @@ public class HackSettingsScreen extends Screen {
             hack.toggle();
             Config.INSTANCE.save();
         }));
+        y += TOGGLE_HEIGHT + GAP;
+
+        keybindBounds = new Rect(x, y, contentWidth, TOGGLE_HEIGHT);
+        clickables.add(new Clickable(keybindBounds, () -> listeningKeybind = true));
         y += TOGGLE_HEIGHT + GAP;
 
         for (Setting setting : hack.getSettings()) {
@@ -157,7 +188,18 @@ public class HackSettingsScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         buildLayout();
+        // Right-click the keybind row to clear the binding.
+        if (button == 2 && keybindBounds.contains((int) mouseX, (int) mouseY)) {
+            hack.setKeyBind(-1);
+            Config.INSTANCE.save();
+            listeningKeybind = false;
+            return true;
+        }
         if (button == 0) {
+            // Clicking anywhere else cancels keybind listening.
+            if (listeningKeybind && !keybindBounds.contains((int) mouseX, (int) mouseY)) {
+                listeningKeybind = false;
+            }
             for (Clickable clickable : clickables) {
                 if (clickable.bounds().contains((int) mouseX, (int) mouseY)) {
                     clickable.action().run();
@@ -172,6 +214,21 @@ public class HackSettingsScreen extends Screen {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (listeningKeybind) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                listeningKeybind = false; // cancel without binding
+            } else {
+                hack.setKeyBind(keyCode);
+                Config.INSTANCE.save();
+                listeningKeybind = false;
+            }
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

@@ -26,9 +26,14 @@ configurable in-game menu, opened with **right Shift**, with three features:
   N-tall tunnel ahead (bridging 1-block drops if you have block items).
   Automatically stops before mining into or walking over lava.
 - **ElytraFlight** — fly with an elytra: **Control** mode (hold space to climb,
-  release to glide) or **Free** mode (fly in the look direction), with
+  release to glide), **Free** mode (fly in the look direction) or **Creative**
+  mode (WASD relative to your look, space climbs, sneak descends), with
   auto-start when falling. KillAura and AimBot also have an **Avoid NPCs**
-  toggle (on by default) that skips villagers and wandering traders.
+  toggle (on by default) that skips server-spawned player NPCs (entities with
+  player skins that are not in the tab list).
+- **Keybinds** — every hack's settings page has a **Keybind** row: click it,
+  press a key to bind (Esc cancels), right-click to clear. The key toggles the
+  hack in-game (edge-triggered) and is saved to the config.
 
 ## Requirements
 

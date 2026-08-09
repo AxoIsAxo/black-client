@@ -51,6 +51,10 @@ public enum Config {
                 if (enabled != null && enabled.isJsonPrimitive()) {
                     hack.setEnabled(enabled.getAsBoolean());
                 }
+                JsonElement keybind = hackJson.get("keybind");
+                if (keybind != null && keybind.isJsonPrimitive()) {
+                    hack.setKeyBind(keybind.getAsInt());
+                }
                 JsonObject settingsJson = hackJson.getAsJsonObject("settings");
                 if (settingsJson == null) {
                     continue;
@@ -79,6 +83,7 @@ public enum Config {
         for (Hack hack : HackManager.INSTANCE.getHacks()) {
             JsonObject hackJson = new JsonObject();
             hackJson.addProperty("enabled", hack.isEnabled());
+            hackJson.addProperty("keybind", hack.getKeyBind());
             JsonObject settingsJson = new JsonObject();
             for (Setting setting : hack.getSettings()) {
                 if (setting instanceof BoolSetting bool) {
