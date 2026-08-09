@@ -11,8 +11,7 @@ base {
 }
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You can use maven.fabricmc.net for Fabric artifacts.
+    mavenCentral()
 }
 
 dependencies {
@@ -20,6 +19,10 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // JNA: Windows-only module enumeration to detect OBS's in-process
+    // game-capture hook; bundled inside the mod jar (see fetchJna/jar).
+    implementation "net.java.dev.jna:jna:5.14.0"
 }
 
 processResources {
@@ -43,12 +46,31 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+// Download JNA once so it can be bundled (kept out of the source tree).
+def jnaVersion = "5.14.0"
+def jnaJar = file("$buildDir/jna/jna-${jnaVersion}.jar")
+tasks.register("fetchJna") {
+    outputs.file(jnaJar)
+    doLast {
+        if (!jnaJar.exists()) {
+            jnaJar.parentFile.mkdirs()
+            def url = "https://repo1.maven.org/maven2/net/java/dev/jna/jna/${jnaVersion}/jna-${jnaVersion}.jar"
+            new URL(url).withInputStream { input -> jnaJar.withOutputStream { output -> output << input } }
+        }
+    }
+}
+
 jar {
     inputs.property "archivesName", project.base.archivesName
 
     from("LICENSE") {
         rename { "${it}_${inputs.properties.archivesName}" }
     }
+
+    // Bundle JNA inside the mod jar so the Fabric loader adds it to the
+    // classpath at runtime (declared in fabric.mod.json under "jars").
+    dependsOn "fetchJna"
+    from(jnaJar) { into("") }
 }
 
 // configure the maven publication

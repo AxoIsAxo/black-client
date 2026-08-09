@@ -51,13 +51,19 @@ configurable in-game menu, opened with **right Shift**, with three features:
 - **Keybinds** — every hack's settings page has a **Keybind** row: click it,
   press a key to bind (Esc cancels), right-click to clear. The key toggles the
   hack in-game (edge-triggered) and is saved to the config.
-- **Anti-capture** — the hack menu is never visible in screenshots or
-  recordings: in-game screenshots (F2) are deferred by one frame so the menu
-  is skipped on the captured frame, and while screen-capture software is
-  running (OBS, XSplit, Bandicam, Fraps, ShareX, Medal, ...) the menu is
-  hidden entirely. Note: while a recorder is open the menu is invisible (and
-  therefore unusable) — toggle hacks before recording, or close the recorder
-  when you need the menu.
+- **Stealth** — keeps the hack menu out of screenshots and recordings.
+  **F2 screenshots** (default on): the in-game screenshot is deferred by one
+  frame and the menu is skipped on the captured frame, so F2 never shows it.
+  **Hide while recording** (default on): while screen-capture software is
+  detected the menu is hidden entirely — process detection on all platforms
+  (OBS, XSplit, Bandicam, Fraps, ShareX, Medal, ...), plus on Windows the
+  precise OBS game-capture hook check (`graphics-hook64.dll` in-process, only
+  loaded while OBS is actually capturing the game). Note: while a recorder is
+  active the menu is invisible and therefore unusable — toggle hacks before
+  recording or turn the setting off. (Research: no open-source client hides
+  its GUI from recorders in code; detection-based hiding is the only technique
+  that ships, and showing the menu to the player while hiding it from a
+  full-screen capture is not possible — the recorder sees the same pixels.)
 
 
 ## Requirements

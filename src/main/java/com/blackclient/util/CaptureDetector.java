@@ -4,10 +4,18 @@ import java.util.List;
 
 /**
  * Detects running screen-capture / recording software so the hack menu can be
- * hidden while the game is being recorded or screenshotted externally (OBS,
- * ShareX, ...). Pure-Java process enumeration, cached for a couple of seconds.
- * Marker list is curated to avoid common false positives (e.g. not matching
- * bare "obs" so apps like Obsidian don't trigger it).
+ * hidden while the game is being recorded or screenshotted externally.
+ * Two layers:
+ * <ul>
+ *   <li>process enumeration (all platforms, cached a couple of seconds) —
+ *       catches recorders like OBS, ShareX, XSplit regardless of capture mode
+ *       (game, window or display capture);</li>
+ *   <li>on Windows, OBS Studio's in-process game-capture hook
+ *       ({@code graphics-hook64.dll}/{@code graphics-hook32.dll}) — present in
+ *       this process only while OBS is actively capturing the game.</li>
+ * </ul>
+ * The process marker list is curated to avoid common false positives (e.g. not
+ * matching bare "obs" so apps like Obsidian don't trigger it).
  */
 public final class CaptureDetector {
 
@@ -17,6 +25,8 @@ public final class CaptureDetector {
             "medal", "outplayed", "simplescreenrecorder", "wf-recorder",
             "kazam", "nvidia share", "screenrecorder");
 
+    private static final long CACHE_MS = 2000;
+
     private static long lastCheck;
     private static boolean capturing;
 
@@ -25,7 +35,7 @@ public final class CaptureDetector {
 
     public static boolean isCapturing() {
         long now = System.currentTimeMillis();
-        if (now - lastCheck > 2000) {
+        if (now - lastCheck > CACHE_MS) {
             lastCheck = now;
             capturing = detect();
         }
@@ -33,9 +43,18 @@ public final class CaptureDetector {
     }
 
     private static boolean detect() {
+        return detectProcess() || detectOBSHook();
+    }
+
+    private static boolean detectProcess() {
         return ProcessHandle.allProcesses()
                 .map(handle -> handle.info().command().orElse(""))
                 .map(command -> command.toLowerCase().replace('\\', '/'))
                 .anyMatch(command -> CAPTURE_MARKERS.stream().anyMatch(command::contains));
+    }
+
+    /** OBS game capture injects its hook DLL into the game process while capturing. */
+    private static boolean detectOBSHook() {
+        return Win32ModuleCheck.isLoaded("graphics-hook");
     }
 }

@@ -18,6 +18,11 @@
   "mixins": [
     "blackclient.mixins.json"
   ],
+  "jars": [
+    {
+      "file": "jna-5.14.0.jar"
+    }
+  ],
   "depends": {
     "fabricloader": ">=0.15.0",
     "minecraft": "~1.21.1",

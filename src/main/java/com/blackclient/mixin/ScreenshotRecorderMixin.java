@@ -2,6 +2,8 @@ package com.blackclient.mixin;
 
 import com.blackclient.gui.HackMenuScreen;
 import com.blackclient.gui.HackSettingsScreen;
+import com.blackclient.hack.HackManager;
+import com.blackclient.hack.impl.Stealth;
 import com.blackclient.util.ScreenshotDeferral;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -30,6 +32,10 @@ public abstract class ScreenshotRecorderMixin {
     private static void blackclient$deferScreenshot(File gameDirectory, Framebuffer framebuffer, Consumer<Text> messageReceiver, CallbackInfo ci) {
         if (ScreenshotDeferral.running) {
             return; // our own deferred capture — let it through
+        }
+        Stealth stealth = HackManager.INSTANCE.get(Stealth.class);
+        if (stealth == null || !stealth.isEnabled() || !stealth.f2Screenshots()) {
+            return; // anti-capture for in-game screenshots disabled — capture normally
         }
         MinecraftClient mc = MinecraftClient.getInstance();
         Screen screen = mc.currentScreen;
