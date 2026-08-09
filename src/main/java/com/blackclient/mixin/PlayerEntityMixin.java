@@ -40,7 +40,7 @@ public abstract class PlayerEntityMixin {
     private void blackclient$reachBlock(CallbackInfoReturnable<Double> cir) {
         Reach reach = HackManager.INSTANCE.get(Reach.class);
         if (reach != null && reach.isEnabled()) {
-            cir.setReturnValue(cir.getReturnValueD() + reach.getExtraRange());
+            cir.setReturnValue(cir.getReturnValueD() + reach.getEffectiveExtraRange());
         }
     }
 
@@ -48,7 +48,7 @@ public abstract class PlayerEntityMixin {
     private void blackclient$reachEntity(CallbackInfoReturnable<Double> cir) {
         Reach reach = HackManager.INSTANCE.get(Reach.class);
         if (reach != null && reach.isEnabled()) {
-            cir.setReturnValue(cir.getReturnValueD() + reach.getExtraRange());
+            cir.setReturnValue(cir.getReturnValueD() + reach.getEffectiveExtraRange());
         }
     }
 

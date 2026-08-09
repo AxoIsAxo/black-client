@@ -21,11 +21,15 @@ configurable in-game menu, opened with **right Shift**, with three features:
 - **NightVision** — full brightness at all times, implemented in the lightmap
   itself (no status effect applied to the player).
 - **Reach** — extends block and entity interaction range (crosshair reach,
-  attacks, block breaking/placing). Works on vanilla servers up to the
-  server's fixed tolerance (block/entity box within `range + 1.0` of your eye
-  — about 5.5 blocks, i.e. roughly +1 over vanilla); further than that the
-  server validates the distance itself and no client trick can extend it. In
-  single-player the full extra range applies.
+  attacks, block breaking/placing). The applied extra is **automatically
+  capped on multiplayer**: vanilla servers only accept interactions whose
+  block/entity box is within their own `range + 1.0` of your eye (about 5.5,
+  i.e. roughly +1 over vanilla), and breaking/placing/attacking beyond that is
+  rejected server-side — so the cap keeps the crosshair aligned with what
+  actually works. Single-player gets the full configured extra. (Like all
+  clients, this is client-side range inflation — same approach as Meteor and
+  Wurst; Paper-style servers with strict interaction checks may reject even
+  the +1.)
 - **Tunneler** — takes control of your player: locks your camera to the
   direction you were facing and walks you forward while mining a 1-wide,
   N-tall tunnel ahead (bridging 1-block drops if you have block items).
