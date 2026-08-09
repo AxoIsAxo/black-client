@@ -10,6 +10,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -111,8 +112,12 @@ public class ElytraFlight extends Hack {
 
     private static void startGliding(ClientPlayerEntity player, ClientPlayNetworkHandler networkHandler) {
         // Mirrors the vanilla client start: validate via checkFallFlying() and
-        // tell the server with a START_FALL_FLYING client command.
+        // tell the server with a START_FALL_FLYING client command. The server
+        // rejects the start while it thinks the player is on the ground, so
+        // first force its onGround to false (the movement packet for this tick
+        // was already sent, possibly with a NoFall-spoofed onGround=true).
         if (player.checkFallFlying()) {
+            networkHandler.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(false));
             networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
         }
     }
