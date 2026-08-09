@@ -66,6 +66,7 @@ public class CustomSlider {
         }
         int knobX = x + fillWidth - 1;
         GuiUtil.rect(context, knobX - 2, trackY - 2, 4, 8, GuiUtil.KNOB);
+        GuiUtil.glitchBars(context, x, trackY - 1, Math.max(fillWidth, 8), 6, System.currentTimeMillis(), 31);
     }
 
     public void onClick(double mouseX, int button) {

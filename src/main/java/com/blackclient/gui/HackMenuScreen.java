@@ -61,7 +61,8 @@ public class HackMenuScreen extends Screen {
         GuiUtil.rect(context, 0, 0, width, height, 0x55000000);
         GuiUtil.rect(context, panelX, panelY, PANEL_WIDTH, panelHeight, GuiUtil.BG);
         GuiUtil.border(context, panelX, panelY, PANEL_WIDTH, panelHeight, GuiUtil.BORDER);
-        GuiUtil.textCentered(context, client.textRenderer, "Black Client", panelX + PANEL_WIDTH / 2, panelY + 7, GuiUtil.ACCENT);
+        GuiUtil.textGlitchCentered(context, client.textRenderer, "Black Client", panelX + PANEL_WIDTH / 2, panelY + 7);
+        GuiUtil.glitchBars(context, panelX + 4, panelY + 2, PANEL_WIDTH - 8, 20, System.currentTimeMillis(), 17);
 
         context.enableScissor(panelX + 5, panelY + TITLE_HEIGHT, panelX + PANEL_WIDTH - 5, panelY + panelHeight - 4);
         for (HeaderEntry header : headers) {

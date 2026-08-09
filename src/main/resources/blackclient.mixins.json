@@ -10,7 +10,12 @@
     "KeyboardInputMixin",
     "LightmapTextureManagerMixin",
     "MinecraftClientMixin",
-    "PlayerEntityMixin"
+    "PlayerEntityMixin",
+    "PressableWidgetMixin",
+    "ScreenMixin",
+    "SliderWidgetMixin",
+    "TextFieldWidgetMixin",
+    "TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
