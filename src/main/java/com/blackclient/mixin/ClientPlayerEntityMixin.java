@@ -71,12 +71,12 @@ public abstract class ClientPlayerEntityMixin {
         if (player.hasVehicle() || player.isFallFlying() || player.isTouchingWater()) {
             return false;
         }
-        // While ElytraFlight is enabled and the player is airborne, the server
-        // must see the real onGround=false so it accepts the flight start
-        // (auto-start or the vanilla jump start); otherwise it rejects the
-        // START_FALL_FLYING command and the client bounces out of flight.
+        // While ElytraFlight is about to auto-start flight, the server must
+        // see the real onGround=false so it accepts the flight start;
+        // otherwise (ElytraFlight off, or the player is not about to fly)
+        // NoFall keeps spoofing normally so fall damage stays prevented.
         ElytraFlight elytraFlight = HackManager.INSTANCE.get(ElytraFlight.class);
-        if (elytraFlight != null && elytraFlight.isEnabled()) {
+        if (elytraFlight != null && elytraFlight.isEnabled() && elytraFlight.wantsToStartFlying(player)) {
             return false;
         }
         return true;

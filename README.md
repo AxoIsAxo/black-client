@@ -16,7 +16,12 @@ configurable in-game menu, opened with **right Shift**, with three features:
 - **NoFall** — never take fall damage. **Packet** mode (default) also spoofs
   the onGround flag in movement packets so the server never counts the fall
   (works on servers); **Client** mode only cancels the local damage
-  application.
+  application. The spoof is only skipped while ElytraFlight is actually about
+  to auto-start flight, so NoFall keeps working the rest of the time.
+- **NoKinetic** — cancels kinetic damage (fall + fly-into-wall elytra impacts)
+  for the local player regardless of flight state, so it keeps working while
+  ElytraFlight is active (where NoFall's packet trick must stay off). Full in
+  single-player; on servers pair it with NoFall.
 - **NightVision** — full brightness at all times, implemented in the lightmap
   itself (no status effect applied to the player).
 - **Reach** — extends block and entity interaction range (crosshair reach,

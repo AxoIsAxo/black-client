@@ -45,6 +45,17 @@ public class ElytraFlight extends Hack {
         return mode.getValue().equals("Creative");
     }
 
+    /**
+     * True while ElytraFlight is about to auto-start flight: airborne, falling
+     * fast and wearing an elytra. In this window the server must see the real
+     * onGround=false so it accepts the flight start, so NoFall must not spoof.
+     */
+    public boolean wantsToStartFlying(ClientPlayerEntity player) {
+        return autoStart.getValue() && !player.isFallFlying() && !player.isOnGround()
+                && !player.isTouchingWater() && player.getVelocity().y < -0.1
+                && hasElytra(player);
+    }
+
     /** Called from the ClientPlayerEntity tickMovement TAIL mixin. */
     public void onControlTick(ClientPlayerEntity player) {
         MinecraftClient mc = MinecraftClient.getInstance();

@@ -9,6 +9,7 @@ import com.blackclient.hack.impl.KillAura;
 import com.blackclient.hack.impl.NightVision;
 import com.blackclient.hack.impl.NoFall;
 import com.blackclient.hack.impl.NoHunger;
+import com.blackclient.hack.impl.NoKinetic;
 import com.blackclient.hack.impl.NoSlowdown;
 import com.blackclient.hack.impl.Reach;
 import com.blackclient.hack.impl.Speed;
@@ -35,6 +36,7 @@ public enum HackManager {
         register(new Reach(), HackCategory.COMBAT);
         register(new NoSlowdown(), HackCategory.MOVEMENT);
         register(new NoFall(), HackCategory.MOVEMENT);
+        register(new NoKinetic(), HackCategory.MOVEMENT);
         register(new NoHunger(), HackCategory.MOVEMENT);
         register(new Speed(), HackCategory.MOVEMENT);
         register(new ElytraFlight(), HackCategory.MOVEMENT);

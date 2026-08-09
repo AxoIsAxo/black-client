@@ -3,6 +3,7 @@ package com.blackclient.mixin;
 import com.blackclient.hack.HackManager;
 import com.blackclient.hack.impl.NoFall;
 import com.blackclient.hack.impl.NoHunger;
+import com.blackclient.hack.impl.NoKinetic;
 import com.blackclient.hack.impl.Reach;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -32,6 +33,23 @@ public abstract class PlayerEntityMixin {
         }
         NoFall noFall = HackManager.INSTANCE.get(NoFall.class);
         if (noFall != null && noFall.isEnabled()) {
+            cir.setReturnValue(false);
+        }
+    }
+
+    /**
+     * NoKinetic: cancels kinetic damage (fall + fly-into-wall) at the single
+     * damage choke point, so it also protects during ElytraFlight where the
+     * NoFall packet spoof is disabled.
+     */
+    @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
+    private void blackclient$noKinetic(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return;
+        }
+        NoKinetic noKinetic = HackManager.INSTANCE.get(NoKinetic.class);
+        if (noKinetic != null && noKinetic.isEnabled()
+                && (source.isOf(DamageTypes.FALL) || source.isOf(DamageTypes.FLY_INTO_WALL))) {
             cir.setReturnValue(false);
         }
     }
