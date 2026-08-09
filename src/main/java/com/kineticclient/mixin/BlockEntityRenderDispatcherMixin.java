@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BlockEntityRenderDispatcher.class)
 public abstract class BlockEntityRenderDispatcherMixin {
 
-    @Inject(method = "render(Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "render(Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V", at = @At("HEAD"), cancellable = true)
     private void kinetic$xrayBlockEntity(BlockEntity blockEntity, float tickDelta, MatrixStack matrices,
                                              VertexConsumerProvider vertexConsumers, CallbackInfo ci) {
         Xray xray = HackManager.INSTANCE.get(Xray.class);
