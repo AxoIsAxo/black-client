@@ -63,8 +63,9 @@ a header to collapse/expand):
   draggable sliders.
 - The whole game UI is restyled in a matching **dark / glitchy** theme:
   vanilla buttons, sliders and text fields use the dark style, screen
-  backdrops are darkened, and the title screen (plus the hack menu titles)
-  get animated glitch bars, scanlines and RGB-split text.
+  backdrops are darkened, and the glitch effect (animated RGB-split bars)
+  appears on buttons and menu rows **when hovered**. The hack menu titles use
+  an RGB-split look.
 
 Changes are saved automatically to `.minecraft/blackclient/config.json` and
 restored on the next launch.

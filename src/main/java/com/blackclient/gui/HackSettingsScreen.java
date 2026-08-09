@@ -59,7 +59,6 @@ public class HackSettingsScreen extends Screen {
         GuiUtil.rect(context, panelX, panelY, PANEL_WIDTH, panelHeight, GuiUtil.BG);
         GuiUtil.border(context, panelX, panelY, PANEL_WIDTH, panelHeight, GuiUtil.BORDER);
         GuiUtil.textGlitchCentered(context, client.textRenderer, hack.getName(), panelX + PANEL_WIDTH / 2, panelY + 7);
-        GuiUtil.glitchBars(context, panelX + 4, panelY + 2, PANEL_WIDTH - 8, 20, System.currentTimeMillis(), 23);
 
         // Back button
         drawButton(context, backBounds, "< Back", mouseX, mouseY);
@@ -79,16 +78,20 @@ public class HackSettingsScreen extends Screen {
     }
 
     private void drawButton(DrawContext context, Rect bounds, String label, int mouseX, int mouseY) {
-        if (GuiUtil.hovered(mouseX, mouseY, bounds)) {
+        boolean hovered = GuiUtil.hovered(mouseX, mouseY, bounds);
+        if (hovered) {
             GuiUtil.rect(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), GuiUtil.HOVER);
+            GuiUtil.glitchBars(context, bounds.x() + 1, bounds.y() + 1, bounds.w() - 2, bounds.h() - 2, System.currentTimeMillis(), 47);
         }
         GuiUtil.border(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), GuiUtil.BORDER);
         GuiUtil.textCentered(context, client.textRenderer, label, bounds.x() + bounds.w() / 2, bounds.y() + 4, GuiUtil.TEXT);
     }
 
     private void drawToggle(DrawContext context, Rect bounds, String label, boolean value, int mouseX, int mouseY) {
-        if (GuiUtil.hovered(mouseX, mouseY, bounds)) {
+        boolean hovered = GuiUtil.hovered(mouseX, mouseY, bounds);
+        if (hovered) {
             GuiUtil.rect(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), GuiUtil.HOVER);
+            GuiUtil.glitchBars(context, bounds.x() + 1, bounds.y() + 1, bounds.w() - 2, bounds.h() - 2, System.currentTimeMillis(), 59);
         }
         GuiUtil.text(context, client.textRenderer, label, bounds.x() + 4, bounds.y() + 5, GuiUtil.TEXT);
         String state = value ? "ON" : "OFF";

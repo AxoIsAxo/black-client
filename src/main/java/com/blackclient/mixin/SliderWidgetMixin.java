@@ -40,7 +40,6 @@ public abstract class SliderWidgetMixin {
             }
             int knobX = x + fillWidth - 1;
             GuiUtil.rect(context, knobX - 2, trackY - 2, 4, 8, GuiUtil.KNOB);
-            GuiUtil.glitchBars(context, x, trackY, Math.max(fillWidth, 8), 4, System.currentTimeMillis(), 53);
         }
     }
 }

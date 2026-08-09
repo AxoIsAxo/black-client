@@ -62,7 +62,6 @@ public class HackMenuScreen extends Screen {
         GuiUtil.rect(context, panelX, panelY, PANEL_WIDTH, panelHeight, GuiUtil.BG);
         GuiUtil.border(context, panelX, panelY, PANEL_WIDTH, panelHeight, GuiUtil.BORDER);
         GuiUtil.textGlitchCentered(context, client.textRenderer, "Black Client", panelX + PANEL_WIDTH / 2, panelY + 7);
-        GuiUtil.glitchBars(context, panelX + 4, panelY + 2, PANEL_WIDTH - 8, 20, System.currentTimeMillis(), 17);
 
         context.enableScissor(panelX + 5, panelY + TITLE_HEIGHT, panelX + PANEL_WIDTH - 5, panelY + panelHeight - 4);
         for (HeaderEntry header : headers) {
@@ -99,6 +98,7 @@ public class HackMenuScreen extends Screen {
         Rect bounds = row.bounds();
         if (GuiUtil.hovered(mouseX, mouseY, bounds)) {
             GuiUtil.rect(context, bounds.x(), bounds.y(), bounds.w(), bounds.h(), GuiUtil.HOVER);
+            GuiUtil.glitchBars(context, bounds.x() + 1, bounds.y() + 1, bounds.w() - 2, bounds.h() - 2, System.currentTimeMillis(), 47);
         }
         GuiUtil.text(context, client.textRenderer, row.hack().getName(), bounds.x() + 6, bounds.y() + 5, GuiUtil.TEXT);
 
