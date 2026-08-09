@@ -18,14 +18,14 @@ configurable in-game menu, opened with **right Shift**, with three features:
   (works on servers); **Client** mode only cancels the local damage
   application. The spoof is only skipped while ElytraFlight is actually about
   to auto-start flight, so NoFall keeps working the rest of the time.
-- **NoKinetic** — cancels kinetic damage (fall + fly-into-wall elytra impacts)
-  for the local player regardless of flight state, so it keeps working while
-  ElytraFlight is active (where NoFall's packet trick must stay off). Full in
-  single-player; on servers pair it with NoFall.
 - **NightVision** — full brightness at all times, implemented in the lightmap
   itself (no status effect applied to the player).
 - **Reach** — extends block and entity interaction range (crosshair reach,
-  attacks, block breaking/placing).
+  attacks, block breaking/placing). Works on vanilla servers up to the
+  server's fixed tolerance (block/entity box within `range + 1.0` of your eye
+  — about 5.5 blocks, i.e. roughly +1 over vanilla); further than that the
+  server validates the distance itself and no client trick can extend it. In
+  single-player the full extra range applies.
 - **Tunneler** — takes control of your player: locks your camera to the
   direction you were facing and walks you forward while mining a 1-wide,
   N-tall tunnel ahead (bridging 1-block drops if you have block items).
