@@ -1,4 +1,4 @@
-# Black Client
+# Kinetic Client
 
 A Minecraft **utility client** (Fabric mod, client-side only) that adds a
 configurable in-game menu, opened with **right Shift**, with three features:
@@ -86,12 +86,12 @@ configurable in-game menu, opened with **right Shift**, with three features:
 ./gradlew build
 ```
 
-The compiled mod lands in `build/libs/blackclient-1.0.0.jar` (use the non-`sources` jar).
+The compiled mod lands in `build/libs/kineticclient-1.0.0.jar` (use the non-`sources` jar).
 
 ## Install
 
 1. Install the Fabric Loader for Minecraft 1.21.1.
-2. Copy `build/libs/blackclient-1.0.0.jar` into your `.minecraft/mods/` folder.
+2. Copy `build/libs/kineticclient-1.0.0.jar` into your `.minecraft/mods/` folder.
 3. Launch the game with the Fabric profile.
 
 ## Usage
@@ -117,7 +117,7 @@ a header to collapse/expand):
 - The **title screen** drops the panorama and logo entirely: an almost-black
   purple background with a purple vignette, with the menu buttons centered.
 
-Changes are saved automatically to `.minecraft/blackclient/config.json` and
+Changes are saved automatically to `.minecraft/kineticclient/config.json` and
 restored on the next launch.
 
 ## Notes

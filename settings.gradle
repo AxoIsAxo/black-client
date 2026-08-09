@@ -6,4 +6,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "blackclient"
+rootProject.name = "kineticclient"

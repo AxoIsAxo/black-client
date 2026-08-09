@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "blackclient",
+  "id": "kineticclient",
   "version": "${version}",
-  "name": "Black Client",
+  "name": "Kinetic Client",
   "description": "A Minecraft utility client with AutoClicker, KillAura and AimBot. Menu opens with right Shift.",
   "authors": [
     "axoisaxo"
@@ -12,11 +12,11 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.blackclient.BlackClient"
+      "com.kineticclient.KineticClient"
     ]
   },
   "mixins": [
-    "blackclient.mixins.json"
+    "kineticclient.mixins.json"
   ],
   "jars": [
     {
