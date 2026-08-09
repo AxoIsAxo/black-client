@@ -20,6 +20,14 @@ configurable in-game menu, opened with **right Shift**, with three features:
   to auto-start flight, so NoFall keeps working the rest of the time.
 - **NightVision** — full brightness at all times, implemented in the lightmap
   itself (no status effect applied to the player).
+- **Xray** — see through blocks: everything except ores, utility blocks
+  (spawners, crafting stations, storage, ...), lava and water is invisible.
+  Every block is configurable: category toggles (Ores / Utility / Lava /
+  Water) plus **Extra blocks** and **Hidden blocks** text fields taking
+  comma/space-separated block IDs (`iron_ore` or `minecraft:iron_ore`). The
+  **Fullbright** toggle (default on) reuses the NightVision lightmap override
+  so revealed ores are lit underground. Chunks re-render automatically on
+  toggle and on any setting change.
 - **Reach** — extends block and entity interaction range (crosshair reach,
   attacks, block breaking/placing). The applied extra is **automatically
   capped on multiplayer**: vanilla servers only accept interactions whose

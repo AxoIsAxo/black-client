@@ -2,6 +2,7 @@ package com.blackclient.mixin;
 
 import com.blackclient.hack.HackManager;
 import com.blackclient.hack.impl.NightVision;
+import com.blackclient.hack.impl.Xray;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -28,8 +29,7 @@ public abstract class LightmapTextureManagerMixin {
 
     @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;hasStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Z", ordinal = 0))
     private boolean blackclient$nightVisionHasEffect(ClientPlayerEntity player, RegistryEntry<StatusEffect> effect) {
-        NightVision nightVision = HackManager.INSTANCE.get(NightVision.class);
-        if (nightVision != null && nightVision.isEnabled()) {
+        if (fullbrightActive()) {
             return true;
         }
         return player.hasStatusEffect(effect);
@@ -37,10 +37,23 @@ public abstract class LightmapTextureManagerMixin {
 
     @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;getNightVisionStrength(Lnet/minecraft/entity/LivingEntity;F)F"))
     private float blackclient$nightVisionStrength(LivingEntity entity, float tickDelta) {
-        NightVision nightVision = HackManager.INSTANCE.get(NightVision.class);
-        if (nightVision != null && nightVision.isEnabled()) {
+        if (fullbrightActive()) {
             return 1.0F;
         }
         return GameRenderer.getNightVisionStrength(entity, tickDelta);
+    }
+
+    /**
+     * Fullbright is active while NightVision is on, or while X-ray is on with
+     * its Fullbright setting enabled (otherwise the revealed blocks would be
+     * pitch black underground).
+     */
+    private static boolean fullbrightActive() {
+        NightVision nightVision = HackManager.INSTANCE.get(NightVision.class);
+        if (nightVision != null && nightVision.isEnabled()) {
+            return true;
+        }
+        Xray xray = HackManager.INSTANCE.get(Xray.class);
+        return xray != null && xray.isEnabled() && xray.fullbright();
     }
 }
