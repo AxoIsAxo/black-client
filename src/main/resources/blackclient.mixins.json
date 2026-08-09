@@ -9,6 +9,7 @@
     "InGameHudMixin",
     "KeyboardInputMixin",
     "LightmapTextureManagerMixin",
+    "LivingEntityMixin",
     "LogoDrawerMixin",
     "MinecraftClientMixin",
     "PlayerEntityMixin",
