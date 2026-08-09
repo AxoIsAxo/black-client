@@ -81,7 +81,9 @@ public class ElytraFlight extends Hack {
     private static void creative(ClientPlayerEntity player, double speed) {
         MinecraftClient mc = MinecraftClient.getInstance();
         double forward = (mc.options.forwardKey.isPressed() ? 1 : 0) - (mc.options.backKey.isPressed() ? 1 : 0);
-        double strafe = (mc.options.rightKey.isPressed() ? 1 : 0) - (mc.options.leftKey.isPressed() ? 1 : 0);
+        // Vanilla convention: movementSideways = getMovementMultiplier(left, right),
+        // i.e. LEFT -> +1, RIGHT -> -1.
+        double strafe = (mc.options.leftKey.isPressed() ? 1 : 0) - (mc.options.rightKey.isPressed() ? 1 : 0);
         double vertical = (mc.options.jumpKey.isPressed() ? 1 : 0) - (mc.options.sneakKey.isPressed() ? 1 : 0);
 
         float yawRad = (float) Math.toRadians(player.getYaw());
