@@ -22,7 +22,10 @@ public abstract class LogoDrawerMixin {
     private static final int DRAW_HEIGHT = 44;
     private static final int DRAW_WIDTH = DRAW_HEIGHT * LOGO_WIDTH / LOGO_HEIGHT;
 
-    @Redirect(method = "draw", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIFFIIII)V"))
+    // "draw" is overloaded (3-arg + 4-arg); the descriptor pins the 4-arg one
+    // that actually draws the logo, and ordinal 0 targets the logo draw (the
+    // second drawTexture call is the "JAVA EDITION" line, which stays vanilla).
+    @Redirect(method = "draw(Lnet/minecraft/client/gui/DrawContext;IFI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIFFIIII)V", ordinal = 0))
     private void blackclient$titleLogo(DrawContext context, Identifier texture, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight) {
         // x is the left edge of the vanilla 256-wide logo; re-center for our width.
         int left = x + (width - DRAW_WIDTH) / 2;
