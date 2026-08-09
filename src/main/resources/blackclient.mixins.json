@@ -15,6 +15,8 @@
     "MinecraftClientMixin",
     "PlayerEntityMixin",
     "PressableWidgetMixin",
+    "RenderSystemMixin",
+    "ScreenshotRecorderMixin",
     "ScreenMixin",
     "SliderWidgetMixin",
     "TextFieldWidgetMixin",

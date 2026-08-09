@@ -51,9 +51,14 @@ configurable in-game menu, opened with **right Shift**, with three features:
 - **Keybinds** — every hack's settings page has a **Keybind** row: click it,
   press a key to bind (Esc cancels), right-click to clear. The key toggles the
   hack in-game (edge-triggered) and is saved to the config.
-- **Spam** — sends a configured chat message at a set interval (0.5–30 s),
-  with an optional random suffix to dodge duplicate-message filters. The
-  message is typed in a custom text field in the hack's settings.
+- **Anti-capture** — the hack menu is never visible in screenshots or
+  recordings: in-game screenshots (F2) are deferred by one frame so the menu
+  is skipped on the captured frame, and while screen-capture software is
+  running (OBS, XSplit, Bandicam, Fraps, ShareX, Medal, ...) the menu is
+  hidden entirely. Note: while a recorder is open the menu is invisible (and
+  therefore unusable) — toggle hacks before recording, or close the recorder
+  when you need the menu.
+
 
 ## Requirements
 

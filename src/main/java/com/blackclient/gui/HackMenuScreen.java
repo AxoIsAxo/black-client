@@ -5,6 +5,7 @@ import com.blackclient.gui.GuiUtil.Rect;
 import com.blackclient.hack.Hack;
 import com.blackclient.hack.HackCategory;
 import com.blackclient.hack.HackManager;
+import com.blackclient.util.MenuHider;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -56,6 +57,11 @@ public class HackMenuScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        // Anti-capture: never render the menu on frames being captured
+        // (deferred in-game screenshot) or while screen-capture software runs.
+        if (MenuHider.hidden()) {
+            return;
+        }
         buildLayout();
 
         GuiUtil.rect(context, 0, 0, width, height, 0x55000000);
