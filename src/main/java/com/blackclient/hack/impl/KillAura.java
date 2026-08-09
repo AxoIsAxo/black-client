@@ -5,10 +5,10 @@ import com.blackclient.hack.setting.BoolSetting;
 import com.blackclient.hack.setting.NumberSetting;
 import com.blackclient.util.Rotations;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Npc;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypeFilter;
@@ -81,8 +81,8 @@ public class KillAura extends Hack {
             if (!(entity instanceof PlayerEntity) && !targetMobs.getValue()) {
                 continue;
             }
-            if (avoidNpcs.getValue() && entity instanceof Npc) {
-                continue; // villagers / wandering traders
+            if (avoidNpcs.getValue() && isServerNpc(mc, entity)) {
+                continue; // server-side player NPCs (not in the tab list)
             }
             double distance = player.squaredDistanceTo(entity);
             if (distance <= bestDistance) {
@@ -91,5 +91,14 @@ public class KillAura extends Hack {
             }
         }
         return best;
+    }
+
+    /** True for player-shaped entities that are not in the tab list (server NPCs, e.g. Citizens). */
+    private static boolean isServerNpc(MinecraftClient mc, Entity entity) {
+        if (!(entity instanceof PlayerEntity)) {
+            return false;
+        }
+        ClientPlayNetworkHandler networkHandler = mc.getNetworkHandler();
+        return networkHandler != null && networkHandler.getPlayerListEntry(entity.getUuid()) == null;
     }
 }

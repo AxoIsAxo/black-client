@@ -6,10 +6,10 @@ import com.blackclient.hack.setting.ModeSetting;
 import com.blackclient.hack.setting.NumberSetting;
 import com.blackclient.util.Rotations;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Npc;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.MathHelper;
@@ -61,10 +61,19 @@ public class AimBot extends Hack {
         if (!(entity instanceof PlayerEntity) && !targetMobs.getValue()) {
             return false;
         }
-        if (avoidNpcs.getValue() && entity instanceof Npc) {
-            return false; // villagers / wandering traders
+        if (avoidNpcs.getValue() && isServerNpc(mc, entity)) {
+            return false; // server-side player NPCs (not in the tab list)
         }
         return player.squaredDistanceTo(entity) <= range.getValue() * range.getValue();
+    }
+
+    /** True for player-shaped entities that are not in the tab list (server NPCs, e.g. Citizens). */
+    private static boolean isServerNpc(MinecraftClient mc, Entity entity) {
+        if (!(entity instanceof PlayerEntity)) {
+            return false;
+        }
+        ClientPlayNetworkHandler networkHandler = mc.getNetworkHandler();
+        return networkHandler != null && networkHandler.getPlayerListEntry(entity.getUuid()) == null;
     }
 
     private Entity findNearest(MinecraftClient mc, ClientPlayerEntity player) {
