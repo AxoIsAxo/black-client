@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Npc;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.MathHelper;
@@ -24,6 +25,7 @@ public class AimBot extends Hack {
     private final ModeSetting targetMode = add(new ModeSetting("Target", "Nearest", "Nearest", "Crosshair"));
     private final BoolSetting targetPlayers = add(new BoolSetting("Target players", true));
     private final BoolSetting targetMobs = add(new BoolSetting("Target mobs", true));
+    private final BoolSetting avoidNpcs = add(new BoolSetting("Avoid NPCs", true));
 
     public AimBot() {
         super("AimBot", "Smoothly aims at the nearest target");
@@ -58,6 +60,9 @@ public class AimBot extends Hack {
         }
         if (!(entity instanceof PlayerEntity) && !targetMobs.getValue()) {
             return false;
+        }
+        if (avoidNpcs.getValue() && entity instanceof Npc) {
+            return false; // villagers / wandering traders
         }
         return player.squaredDistanceTo(entity) <= range.getValue() * range.getValue();
     }

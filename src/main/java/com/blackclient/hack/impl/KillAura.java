@@ -8,6 +8,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Npc;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypeFilter;
@@ -23,6 +24,7 @@ public class KillAura extends Hack {
     private final BoolSetting rotate = add(new BoolSetting("Rotate to target", true));
     private final BoolSetting targetPlayers = add(new BoolSetting("Target players", true));
     private final BoolSetting targetMobs = add(new BoolSetting("Target mobs", true));
+    private final BoolSetting avoidNpcs = add(new BoolSetting("Avoid NPCs", true));
 
     private long lastAttack;
 
@@ -78,6 +80,9 @@ public class KillAura extends Hack {
             }
             if (!(entity instanceof PlayerEntity) && !targetMobs.getValue()) {
                 continue;
+            }
+            if (avoidNpcs.getValue() && entity instanceof Npc) {
+                continue; // villagers / wandering traders
             }
             double distance = player.squaredDistanceTo(entity);
             if (distance <= bestDistance) {

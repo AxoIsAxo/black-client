@@ -2,6 +2,7 @@ package com.blackclient.hack;
 
 import com.blackclient.hack.impl.AimBot;
 import com.blackclient.hack.impl.AutoClicker;
+import com.blackclient.hack.impl.ElytraFlight;
 import com.blackclient.hack.impl.HealthBars;
 import com.blackclient.hack.impl.KillAura;
 import com.blackclient.hack.impl.NightVision;
@@ -25,6 +26,7 @@ public enum HackManager {
         register(new Reach(), HackCategory.COMBAT);
         register(new NoSlowdown(), HackCategory.MOVEMENT);
         register(new NoFall(), HackCategory.MOVEMENT);
+        register(new ElytraFlight(), HackCategory.MOVEMENT);
         register(new Tunneler(), HackCategory.MOVEMENT);
         register(new NightVision(), HackCategory.RENDER);
         register(new HealthBars(), HackCategory.RENDER);

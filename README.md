@@ -25,6 +25,10 @@ configurable in-game menu, opened with **right Shift**, with three features:
   direction you were facing and walks you forward while mining a 1-wide,
   N-tall tunnel ahead (bridging 1-block drops if you have block items).
   Automatically stops before mining into or walking over lava.
+- **ElytraFlight** — fly with an elytra: **Control** mode (hold space to climb,
+  release to glide) or **Free** mode (fly in the look direction), with
+  auto-start when falling. KillAura and AimBot also have an **Avoid NPCs**
+  toggle (on by default) that skips villagers and wandering traders.
 
 ## Requirements
 

@@ -1,14 +1,17 @@
 package com.blackclient.mixin;
 
 import com.blackclient.hack.HackManager;
+import com.blackclient.hack.impl.ElytraFlight;
 import com.blackclient.hack.impl.NoFall;
 import com.blackclient.hack.impl.NoSlowdown;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * Client-side patches for the local player entity.
@@ -51,5 +54,17 @@ public abstract class ClientPlayerEntityMixin {
             return false;
         }
         return true;
+    }
+
+    /**
+     * ElytraFlight: applied at the end of the player's movement tick, after
+     * the vanilla elytra physics have run.
+     */
+    @Inject(method = "tickMovement", at = @At("TAIL"))
+    private void blackclient$elytraFlight(CallbackInfo ci) {
+        ElytraFlight elytraFlight = HackManager.INSTANCE.get(ElytraFlight.class);
+        if (elytraFlight != null && elytraFlight.isEnabled()) {
+            elytraFlight.onControlTick((ClientPlayerEntity) (Object) this);
+        }
     }
 }
