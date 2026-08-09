@@ -2,14 +2,17 @@ package com.blackclient.mixin;
 
 import com.blackclient.gui.GuiUtil;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.screen.SplashTextRenderer;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -47,6 +50,11 @@ public abstract class TitleScreenMixin {
         ci.cancel();
     }
 
+    /** No-op: the splash text is removed. */
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/SplashTextRenderer;render(Lnet/minecraft/client/gui/DrawContext;ILnet/minecraft/client/font/TextRenderer;I)V"))
+    private void blackclient$hideSplash(SplashTextRenderer renderer, DrawContext context, int screenWidth, TextRenderer textRenderer, int alpha) {
+    }
+
     @Inject(method = "init", at = @At("TAIL"))
     private void blackclient$centerButtons(CallbackInfo ci) {
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -64,6 +72,10 @@ public abstract class TitleScreenMixin {
 
         for (Element element : ((TitleScreen) (Object) this).children()) {
             if (element instanceof ClickableWidget widget) {
+                // Keep bottom-anchored widgets (the copyright notice) in place.
+                if (widget.getY() + widget.getHeight() >= height - 20) {
+                    continue;
+                }
                 widget.setY(widget.getY() + shift);
             }
         }
