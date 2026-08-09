@@ -169,7 +169,11 @@ public class Xray extends Hack {
     private static void scheduleUpdate() {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.worldRenderer != null) {
-            mc.worldRenderer.scheduleTerrainUpdate();
+            // scheduleTerrainUpdate() only recomputes occlusion/render data and
+            // does NOT rebuild the baked chunk meshes, so X-ray would not take
+            // effect on already-rendered chunks. reload() clears and re-bakes
+            // every section, which is what actually applies the new whitelist.
+            mc.worldRenderer.reload();
         }
     }
 }
