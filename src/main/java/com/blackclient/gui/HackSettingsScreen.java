@@ -7,6 +7,7 @@ import com.blackclient.hack.setting.BoolSetting;
 import com.blackclient.hack.setting.ModeSetting;
 import com.blackclient.hack.setting.NumberSetting;
 import com.blackclient.hack.setting.Setting;
+import com.blackclient.hack.setting.StringSetting;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.InputUtil;
@@ -26,6 +27,7 @@ public class HackSettingsScreen extends Screen {
     private static final int TITLE_HEIGHT = 24;
     private static final int TOGGLE_HEIGHT = 18;
     private static final int SLIDER_HEIGHT = 26;
+    private static final int TEXT_ROW_HEIGHT = 30;
     private static final int GAP = 3;
 
     private record Clickable(Rect bounds, Runnable action) {
@@ -37,11 +39,16 @@ public class HackSettingsScreen extends Screen {
     private record ModeRow(Rect bounds, ModeSetting setting) {
     }
 
+    private record TextRow(Rect bounds, StringSetting setting) {
+    }
+
     private final Hack hack;
     private final List<Clickable> clickables = new ArrayList<>();
     private final List<CustomSlider> sliders = new ArrayList<>();
     private final List<ToggleRow> toggles = new ArrayList<>();
     private final List<ModeRow> modes = new ArrayList<>();
+    private final List<TextRow> textFields = new ArrayList<>();
+    private StringSetting focusedText;
     private Rect backBounds;
     private Rect enabledBounds;
     private Rect keybindBounds;
@@ -79,8 +86,26 @@ public class HackSettingsScreen extends Screen {
         for (ModeRow row : modes) {
             drawButton(context, row.bounds(), row.setting().getName() + ": " + row.setting().getValue(), mouseX, mouseY);
         }
+        for (TextRow row : textFields) {
+            drawTextField(context, row.bounds(), row.setting());
+        }
         for (CustomSlider slider : sliders) {
             slider.render(context, client.textRenderer);
+        }
+    }
+
+    private void drawTextField(DrawContext context, Rect bounds, StringSetting setting) {
+        boolean focused = focusedText == setting;
+        GuiUtil.text(context, client.textRenderer, setting.getName(), bounds.x() + 2, bounds.y() + 2, GuiUtil.MUTED);
+        int boxY = bounds.y() + 13;
+        int boxH = 13;
+        GuiUtil.rect(context, bounds.x(), boxY, bounds.w(), boxH, 0xFF10101A);
+        GuiUtil.border(context, bounds.x(), boxY, bounds.w(), boxH, focused ? GuiUtil.ACCENT : GuiUtil.BORDER);
+        String display = client.textRenderer.trimToWidth(setting.getValue(), bounds.w() - 8);
+        GuiUtil.text(context, client.textRenderer, display, bounds.x() + 3, boxY + 2, GuiUtil.TEXT);
+        if (focused && (System.currentTimeMillis() / 500) % 2 == 0) {
+            int cursorX = bounds.x() + 3 + client.textRenderer.getWidth(display);
+            GuiUtil.rect(context, cursorX, boxY + 2, 1, 8, GuiUtil.ACCENT);
         }
     }
 
@@ -132,6 +157,7 @@ public class HackSettingsScreen extends Screen {
         sliders.clear();
         toggles.clear();
         modes.clear();
+        textFields.clear();
 
         panelX = (width - PANEL_WIDTH) / 2;
         panelY = 30;
@@ -178,6 +204,10 @@ public class HackSettingsScreen extends Screen {
                 slider.setBounds(bounds);
                 sliders.add(slider);
                 y += SLIDER_HEIGHT + GAP;
+            } else if (setting instanceof StringSetting string) {
+                Rect bounds = new Rect(x, y, contentWidth, TEXT_ROW_HEIGHT);
+                textFields.add(new TextRow(bounds, string));
+                y += TEXT_ROW_HEIGHT + GAP;
             }
         }
 
@@ -196,6 +226,21 @@ public class HackSettingsScreen extends Screen {
             return true;
         }
         if (button == 0) {
+            // Text fields: clicking one focuses it, clicking elsewhere unfocuses.
+            boolean clickedField = false;
+            for (TextRow row : textFields) {
+                if (row.bounds().contains((int) mouseX, (int) mouseY)) {
+                    focusedText = row.setting();
+                    clickedField = true;
+                    break;
+                }
+            }
+            if (!clickedField) {
+                focusedText = null;
+            }
+            if (clickedField) {
+                return true;
+            }
             // Clicking anywhere else cancels keybind listening.
             if (listeningKeybind && !keybindBounds.contains((int) mouseX, (int) mouseY)) {
                 listeningKeybind = false;
@@ -218,6 +263,19 @@ public class HackSettingsScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (focusedText != null) {
+            if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+                String value = focusedText.getValue();
+                if (!value.isEmpty()) {
+                    focusedText.setValue(value.substring(0, value.length() - 1));
+                    Config.INSTANCE.save();
+                }
+            } else if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER || keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                focusedText = null;
+                Config.INSTANCE.save();
+            }
+            return true;
+        }
         if (listeningKeybind) {
             if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
                 listeningKeybind = false; // cancel without binding
@@ -229,6 +287,18 @@ public class HackSettingsScreen extends Screen {
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        if (focusedText != null) {
+            if (chr >= ' ' && chr != 127) {
+                focusedText.setValue(focusedText.getValue() + chr);
+                Config.INSTANCE.save();
+            }
+            return true;
+        }
+        return super.charTyped(chr, modifiers);
     }
 
     @Override

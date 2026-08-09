@@ -12,6 +12,7 @@ import com.blackclient.hack.impl.NoHunger;
 import com.blackclient.hack.impl.NoSlowdown;
 import com.blackclient.hack.impl.Reach;
 import com.blackclient.hack.impl.Speed;
+import com.blackclient.hack.impl.Spam;
 import com.blackclient.hack.impl.Tunneler;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;
@@ -40,6 +41,7 @@ public enum HackManager {
         register(new Tunneler(), HackCategory.MOVEMENT);
         register(new NightVision(), HackCategory.RENDER);
         register(new HealthBars(), HackCategory.RENDER);
+        register(new Spam(), HackCategory.OTHER);
     }
 
     public void register(Hack hack) {

@@ -42,6 +42,9 @@ configurable in-game menu, opened with **right Shift**, with three features:
 - **Keybinds** — every hack's settings page has a **Keybind** row: click it,
   press a key to bind (Esc cancels), right-click to clear. The key toggles the
   hack in-game (edge-triggered) and is saved to the config.
+- **Spam** — sends a configured chat message at a set interval (0.5–30 s),
+  with an optional random suffix to dodge duplicate-message filters. The
+  message is typed in a custom text field in the hack's settings.
 
 ## Requirements
 

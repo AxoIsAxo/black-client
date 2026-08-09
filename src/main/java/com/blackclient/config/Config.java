@@ -6,6 +6,7 @@ import com.blackclient.hack.setting.BoolSetting;
 import com.blackclient.hack.setting.ModeSetting;
 import com.blackclient.hack.setting.NumberSetting;
 import com.blackclient.hack.setting.Setting;
+import com.blackclient.hack.setting.StringSetting;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -70,6 +71,8 @@ public enum Config {
                         number.setValue(value.getAsDouble());
                     } else if (setting instanceof ModeSetting mode) {
                         mode.setValue(value.getAsString());
+                    } else if (setting instanceof StringSetting string) {
+                        string.setValue(value.getAsString());
                     }
                 }
             }
@@ -92,6 +95,8 @@ public enum Config {
                     settingsJson.addProperty(setting.getName(), number.getValue());
                 } else if (setting instanceof ModeSetting mode) {
                     settingsJson.addProperty(setting.getName(), mode.getValue());
+                } else if (setting instanceof StringSetting string) {
+                    settingsJson.addProperty(setting.getName(), string.getValue());
                 }
             }
             hackJson.add("settings", settingsJson);

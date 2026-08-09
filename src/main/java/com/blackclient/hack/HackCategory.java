@@ -6,7 +6,8 @@ package com.blackclient.hack;
 public enum HackCategory {
     COMBAT("Combat", 0xFFE74C3C),
     MOVEMENT("Movement", 0xFF3498DB),
-    RENDER("Render", 0xFF9B59B6);
+    RENDER("Render", 0xFF9B59B6),
+    OTHER("Other", 0xFFE67E22);
 
     private final String name;
     private final int color;
