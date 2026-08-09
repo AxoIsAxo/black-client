@@ -33,9 +33,12 @@ configurable in-game menu, opened with **right Shift**, with three features:
   player skins that are not in the tab list).
 - **Speed** — multiplies your base movement speed (applies to walking and
   sprinting; restored when disabled).
-- **NoHunger** — stops hunger from draining: exhaustion is cancelled for the
-  local player (works fully in single-player; on servers the food bar is kept
-  full client-side but the server still drains hunger).
+- **NoHunger** — prevents most hunger drain, **including on servers**:
+  cancels the `START_SPRINTING` packet (no per-tick sprint exhaustion — you
+  still sprint locally) and pretends to be airborne while standing so the
+  server never charges jump exhaustion. Distance-based drains (walking,
+  swimming), mining and attacks still apply server-side; in single-player it
+  is complete.
 - **Keybinds** — every hack's settings page has a **Keybind** row: click it,
   press a key to bind (Esc cancels), right-click to clear. The key toggles the
   hack in-game (edge-triggered) and is saved to the config.

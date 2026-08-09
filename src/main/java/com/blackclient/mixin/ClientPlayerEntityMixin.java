@@ -3,7 +3,9 @@ package com.blackclient.mixin;
 import com.blackclient.hack.HackManager;
 import com.blackclient.hack.impl.ElytraFlight;
 import com.blackclient.hack.impl.NoFall;
+import com.blackclient.hack.impl.NoHunger;
 import com.blackclient.hack.impl.NoSlowdown;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,7 +42,23 @@ public abstract class ClientPlayerEntityMixin {
 
     @Redirect(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isOnGround()Z"))
     private boolean blackclient$noFallOnGround(ClientPlayerEntity player) {
-        if (player.isOnGround()) {
+        boolean onGround = player.isOnGround();
+
+        // NoHunger: while standing still (no fall distance, not mining, not
+        // riding), pretend to be airborne so the server never observes a
+        // ground-state transition and never charges jump/sprint-jump
+        // exhaustion. Real landings (fallDistance > 0) pass through so the
+        // server still registers them.
+        NoHunger noHunger = HackManager.INSTANCE.get(NoHunger.class);
+        if (noHunger != null && noHunger.isEnabled() && onGround
+                && player.fallDistance <= 0.0F && !player.hasVehicle()) {
+            MinecraftClient mc = MinecraftClient.getInstance();
+            if (mc.interactionManager == null || !mc.interactionManager.isBreakingBlock()) {
+                return false;
+            }
+        }
+
+        if (onGround) {
             return true;
         }
         NoFall noFall = HackManager.INSTANCE.get(NoFall.class);
