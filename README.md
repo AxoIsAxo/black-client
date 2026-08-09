@@ -66,6 +66,8 @@ a header to collapse/expand):
   backdrops are darkened, and the glitch effect (animated RGB-split bars)
   appears on buttons and menu rows **when hovered**. The hack menu titles use
   an RGB-split look.
+- The **title screen** drops the panorama and logo entirely: an almost-black
+  purple background with a purple vignette, with the menu buttons centered.
 
 Changes are saved automatically to `.minecraft/blackclient/config.json` and
 restored on the next launch.

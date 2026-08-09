@@ -1,20 +1,15 @@
 package com.blackclient.mixin;
 
-import com.blackclient.BlackClient;
 import com.blackclient.config.Config;
 import com.blackclient.gui.HackMenuScreen;
 import com.blackclient.hack.HackManager;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.io.InputStream;
 
 /**
  * Hooks the client tick to:
@@ -40,7 +35,6 @@ public abstract class MinecraftClientMixin {
         if (!blackclient$configLoaded) {
             blackclient$configLoaded = true;
             Config.INSTANCE.load();
-            blackclient$checkTitleLogo(mc);
         }
 
         if (mc.getWindow() != null && mc.getWindow().getHandle() != 0L) {
@@ -57,25 +51,5 @@ public abstract class MinecraftClientMixin {
         }
 
         HackManager.INSTANCE.onTick();
-    }
-
-    /** Diagnostic: logs whether the title-logo resource exists and decodes. */
-    @Unique
-    private static void blackclient$checkTitleLogo(MinecraftClient mc) {
-        Identifier logo = Identifier.of("blackclient", "textures/gui/title/logo.png");
-        try {
-            boolean present = mc.getResourceManager().getResource(logo).isPresent();
-            BlackClient.LOGGER.info("[BlackClient] title logo resource present: {}", present);
-            if (present) {
-                try (InputStream in = mc.getResourceManager().getResource(logo).get().getInputStream()) {
-                    NativeImage image = NativeImage.read(in);
-                    BlackClient.LOGGER.info("[BlackClient] title logo decodes OK: {}x{}", image.getWidth(), image.getHeight());
-                } catch (Exception e) {
-                    BlackClient.LOGGER.error("[BlackClient] title logo decode FAILED", e);
-                }
-            }
-        } catch (Exception e) {
-            BlackClient.LOGGER.error("[BlackClient] title logo resource check failed", e);
-        }
     }
 }
