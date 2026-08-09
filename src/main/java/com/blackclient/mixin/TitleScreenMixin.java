@@ -21,6 +21,8 @@ public abstract class TitleScreenMixin {
     @Inject(method = "render", at = @At("TAIL"))
     private void blackclient$titleDarken(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         MinecraftClient mc = MinecraftClient.getInstance();
-        GuiUtil.rect(context, 0, 0, mc.getWindow().getScaledWidth(), mc.getWindow().getScaledHeight(), 0x88000000);
+        // Keep the title screen mostly light so the (dark) custom logo stays
+        // visible against the panorama; only a subtle darkening for the theme.
+        GuiUtil.rect(context, 0, 0, mc.getWindow().getScaledWidth(), mc.getWindow().getScaledHeight(), 0x33000000);
     }
 }
