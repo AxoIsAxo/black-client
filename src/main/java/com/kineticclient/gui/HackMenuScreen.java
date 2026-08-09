@@ -218,7 +218,7 @@ public class HackMenuScreen extends Screen {
     }
 
     private boolean isExpanded(HackCategory category) {
-        return EXPANDED.getOrDefault(category, true);
+        return EXPANDED.getOrDefault(category, false);
     }
 
     @Override
