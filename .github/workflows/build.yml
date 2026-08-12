@@ -44,9 +44,6 @@ jobs:
           name: Kinetic Client (Latest)
           draft: false
           prerelease: false
-          files: |
-            build/libs/*.jar
-            !build/libs/*-sources.jar
-            !build/libs/*-dev.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          make_latest: "true"
+          files: build/libs/kineticclient-*.jar
+          token: ${{ secrets.GITHUB_TOKEN }}
