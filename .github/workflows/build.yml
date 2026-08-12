@@ -16,6 +16,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract commit info
+        id: commit_info
+        run: |
+          SUBJECT=$(git log -1 --pretty=%s)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -32,22 +42,30 @@ jobs:
       - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
-          name: kineticclient-build-${{ github.run_number }}
+          name: kineticclient-${{ steps.commit_info.outputs.short_sha }}
           path: |
             build/libs/*.jar
             !build/libs/*-sources.jar
             !build/libs/*-dev.jar
           if-no-files-found: error
 
-      - name: Create GitHub Release
+      - name: Update 'latest' Git Tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f latest HEAD
+          git push origin -f latest
+
+      - name: Create New Release (Named After Commit)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}
-          name: Kinetic Client (Build #${{ github.run_number }})
+          tag_name: build-${{ github.run_number }}-${{ steps.commit_info.outputs.short_sha }}
+          name: "${{ steps.commit_info.outputs.subject }}"
           body: |
-            ### ⚡ Kinetic Client — Build #${{ github.run_number }}
-            - **Commit**: `${{ github.sha }}`
+            ### ⚡ Kinetic Client — ${{ steps.commit_info.outputs.subject }}
+            - **Commit**: `${{ github.sha }}` (`${{ steps.commit_info.outputs.short_sha }}`)
             - **CI Run**: [#${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             - **Branch**: `${{ github.ref_name }}`
             
@@ -56,6 +74,27 @@ jobs:
           prerelease: false
           make_latest: "true"
           generate_release_notes: true
+          files: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-dev.jar
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update 'latest' Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Latest: ${{ steps.commit_info.outputs.subject }}"
+          body: |
+            ### ⚡ Kinetic Client (Latest Build)
+            - **Latest Commit**: ${{ steps.commit_info.outputs.subject }} (`${{ steps.commit_info.outputs.short_sha }}`)
+            - **Full Commit**: `${{ github.sha }}`
+            - **CI Run**: [#${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            
+            Always points to the newest build on `main`.
+          draft: false
+          prerelease: false
           files: |
             build/libs/*.jar
             !build/libs/*-sources.jar
