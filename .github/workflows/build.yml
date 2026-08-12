@@ -1,8 +1,11 @@
-name: Build
+name: Build & Release
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -29,21 +32,32 @@ jobs:
       - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
-          name: kineticclient
+          name: kineticclient-build-${{ github.run_number }}
           path: |
             build/libs/*.jar
             !build/libs/*-sources.jar
             !build/libs/*-dev.jar
           if-no-files-found: error
 
-      - name: Release jar
+      - name: Create GitHub Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
-          name: Kinetic Client (Latest)
+          tag_name: build-${{ github.run_number }}
+          name: Kinetic Client (Build #${{ github.run_number }})
+          body: |
+            ### ⚡ Kinetic Client — Build #${{ github.run_number }}
+            - **Commit**: `${{ github.sha }}`
+            - **CI Run**: [#${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Branch**: `${{ github.ref_name }}`
+            
+            Built with Fabric Loom for Minecraft 1.20+ / 1.21.1.
           draft: false
           prerelease: false
           make_latest: "true"
-          files: build/libs/kineticclient-*.jar
+          generate_release_notes: true
+          files: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-dev.jar
           token: ${{ secrets.GITHUB_TOKEN }}
