@@ -72,7 +72,7 @@ jobs:
             Built with Fabric Loom for Minecraft 1.20+ / 1.21.1.
           draft: false
           prerelease: false
-          make_latest: "true"
+          make_latest: "false"
           generate_release_notes: true
           files: |
             build/libs/*.jar
@@ -80,21 +80,23 @@ jobs:
             !build/libs/*-dev.jar
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update 'latest' Release
+      - name: Update Kinetic Client (Latest) Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: "Latest: ${{ steps.commit_info.outputs.subject }}"
+          name: "Kinetic Client (Latest)"
           body: |
             ### ⚡ Kinetic Client (Latest Build)
             - **Latest Commit**: ${{ steps.commit_info.outputs.subject }} (`${{ steps.commit_info.outputs.short_sha }}`)
             - **Full Commit**: `${{ github.sha }}`
             - **CI Run**: [#${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Branch**: `${{ github.ref_name }}`
             
-            Always points to the newest build on `main`.
+            Always points to the latest build on `main`.
           draft: false
           prerelease: false
+          make_latest: "true"
           files: |
             build/libs/*.jar
             !build/libs/*-sources.jar
