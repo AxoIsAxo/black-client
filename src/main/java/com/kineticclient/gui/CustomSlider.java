@@ -1,5 +1,6 @@
 package com.kineticclient.gui;
 
+import com.kineticclient.audio.SoundSynthesizer;
 import com.kineticclient.config.Config;
 import com.kineticclient.hack.setting.NumberSetting;
 import net.minecraft.client.font.TextRenderer;
@@ -8,17 +9,24 @@ import net.minecraft.client.gui.DrawContext;
 import java.util.Locale;
 
 /**
- * Custom-drawn slider bound to a {@link NumberSetting}: label with the current
- * value, a track with fill, and a draggable knob. No vanilla widgets.
+ * KineticsLabs Neobrutalist custom slider with tactile audio ticks.
  */
 public class CustomSlider {
 
     private final NumberSetting setting;
+    private final int accentColor;
     private GuiUtil.Rect bounds;
     private boolean dragging;
+    private double lastSoundValue;
 
     public CustomSlider(NumberSetting setting) {
+        this(setting, GuiUtil.ACCENT_CYAN);
+    }
+
+    public CustomSlider(NumberSetting setting, int accentColor) {
         this.setting = setting;
+        this.accentColor = accentColor;
+        this.lastSoundValue = setting.getValue();
     }
 
     public void setBounds(GuiUtil.Rect bounds) {
@@ -42,10 +50,17 @@ public class CustomSlider {
         if (bounds == null) {
             return;
         }
-        double t = (mouseX - bounds.x()) / bounds.w();
+        int trackX = bounds.x() + 2;
+        int trackW = bounds.w() - 4;
+        double t = (mouseX - trackX) / (double) trackW;
         t = Math.max(0.0, Math.min(1.0, t));
         setting.setValue(setting.getMin() + (setting.getMax() - setting.getMin()) * t);
         Config.INSTANCE.save();
+
+        if (Math.abs(setting.getValue() - lastSoundValue) >= Math.max(0.1, setting.getStep())) {
+            lastSoundValue = setting.getValue();
+            SoundSynthesizer.INSTANCE.playTick();
+        }
     }
 
     public void render(DrawContext context, TextRenderer renderer) {
@@ -55,23 +70,38 @@ public class CustomSlider {
         int x = bounds.x();
         int y = bounds.y();
         int w = bounds.w();
+        int h = bounds.h();
 
-        GuiUtil.text(context, renderer, setting.getName() + ": " + formatValue(), x, y, GuiUtil.TEXT);
+        // Control label row: [SETTING NAME] on left, [VALUE] on right in accent color
+        GuiUtil.text(context, renderer, setting.getName().toUpperCase(), x + 2, y, GuiUtil.TEXT_SLATE);
+        String valStr = formatValue();
+        int valWidth = renderer.getWidth(valStr);
+        GuiUtil.text(context, renderer, valStr, x + w - valWidth - 2, y, accentColor);
 
-        int trackY = y + 13;
-        GuiUtil.rect(context, x, trackY, w, 4, GuiUtil.TRACK);
+        // Slider track
+        int trackY = y + 11;
+        int trackH = 5;
+        GuiUtil.rect(context, x, trackY, w, trackH, 0xFF000000);
+        GuiUtil.border(context, x, trackY, w, trackH, GuiUtil.BORDER_SLATE);
+
+        // Fill
         int fillWidth = (int) (w * ratio());
         if (fillWidth > 0) {
-            GuiUtil.rect(context, x, trackY, fillWidth, 4, GuiUtil.ACCENT);
+            GuiUtil.rect(context, x, trackY, fillWidth, trackH, accentColor);
         }
-        int knobX = x + fillWidth - 1;
-        GuiUtil.rect(context, knobX - 2, trackY - 2, 4, 8, GuiUtil.KNOB);
+
+        // Neobrutalist Square Knob
+        int knobSize = 9;
+        int knobX = Math.max(x, Math.min(x + w - knobSize, x + fillWidth - knobSize / 2));
+        int knobY = trackY - 2;
+        GuiUtil.brutalBox(context, knobX, knobY, knobSize, knobSize, accentColor, 0xFF000000, 0xFF000000, 1);
     }
 
     public void onClick(double mouseX, int button) {
         if (button == 0) {
             setFromMouse(mouseX);
             dragging = true;
+            SoundSynthesizer.INSTANCE.playTick();
         }
     }
 
@@ -85,7 +115,7 @@ public class CustomSlider {
         dragging = false;
     }
 
-    private String formatValue() {
+    public String formatValue() {
         return setting.getStep() >= 1
                 ? String.valueOf(setting.getValueInt())
                 : String.format(Locale.ROOT, "%.1f", setting.getValue());

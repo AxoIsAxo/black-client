@@ -1,23 +1,9 @@
 package com.kineticclient.hack;
 
+import com.kineticclient.audio.SoundSynthesizer;
 import com.kineticclient.config.Config;
-import com.kineticclient.hack.impl.AimBot;
-import com.kineticclient.hack.impl.AutoClicker;
-import com.kineticclient.hack.impl.ElytraFlight;
-import com.kineticclient.hack.impl.HealthBars;
-import com.kineticclient.hack.impl.HighJump;
-import com.kineticclient.hack.impl.Keypresser;
-import com.kineticclient.hack.impl.KillAura;
-import com.kineticclient.hack.impl.NightVision;
-import com.kineticclient.hack.impl.NoFall;
-import com.kineticclient.hack.impl.NoHunger;
-import com.kineticclient.hack.impl.NoSlowdown;
-import com.kineticclient.hack.impl.Reach;
-import com.kineticclient.hack.impl.Speed;
-import com.kineticclient.hack.impl.Spam;
-import com.kineticclient.hack.impl.Stealth;
-import com.kineticclient.hack.impl.Tunneler;
-import com.kineticclient.hack.impl.Xray;
+import com.kineticclient.gui.ToastManager;
+import com.kineticclient.hack.impl.*;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;
 
@@ -39,14 +25,14 @@ public enum HackManager {
         register(new Reach(), HackCategory.COMBAT);
         register(new NoSlowdown(), HackCategory.MOVEMENT);
         register(new NoFall(), HackCategory.MOVEMENT);
-        register(new NoHunger(), HackCategory.MOVEMENT);
+        register(new ElytraFlight(), HackCategory.MOVEMENT);
         register(new Speed(), HackCategory.MOVEMENT);
         register(new HighJump(), HackCategory.MOVEMENT);
-        register(new ElytraFlight(), HackCategory.MOVEMENT);
-        register(new Tunneler(), HackCategory.MOVEMENT);
         register(new NightVision(), HackCategory.RENDER);
         register(new HealthBars(), HackCategory.RENDER);
         register(new Xray(), HackCategory.RENDER);
+        register(new Tunneler(), HackCategory.WORLD);
+        register(new NoHunger(), HackCategory.WORLD);
         register(new Spam(), HackCategory.OTHER);
         register(new Keypresser(), HackCategory.OTHER);
         register(new Stealth(), HackCategory.OTHER);
@@ -65,6 +51,16 @@ public enum HackManager {
         return hacks;
     }
 
+    public List<Hack> getHacks(HackCategory category) {
+        List<Hack> list = new ArrayList<>();
+        for (Hack h : hacks) {
+            if (h.getCategory() == category) {
+                list.add(h);
+            }
+        }
+        return list;
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Hack> T get(Class<T> clazz) {
         for (Hack hack : hacks) {
@@ -73,6 +69,14 @@ public enum HackManager {
             }
         }
         return null;
+    }
+
+    public int getEnabledCount() {
+        int count = 0;
+        for (Hack h : hacks) {
+            if (h.isEnabled()) count++;
+        }
+        return count;
     }
 
     /** Called from the client tick mixin every frame. */
@@ -90,6 +94,14 @@ public enum HackManager {
             if (pressed && !previous) {
                 hack.toggle();
                 Config.INSTANCE.save();
+
+                if (hack.isEnabled()) {
+                    SoundSynthesizer.INSTANCE.playToggleOn();
+                    ToastManager.INSTANCE.show("⚡ " + hack.getName() + " // ENABLED", ToastManager.ToastType.CYAN);
+                } else {
+                    SoundSynthesizer.INSTANCE.playToggleOff();
+                    ToastManager.INSTANCE.show(hack.getName() + " // DISABLED", ToastManager.ToastType.PURPLE);
+                }
             }
         }
 

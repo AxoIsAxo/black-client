@@ -1,19 +1,20 @@
 package com.kineticclient.mixin;
 
+import com.kineticclient.audio.SoundSynthesizer;
 import com.kineticclient.gui.GuiUtil;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.util.Identifier;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Replaces the vanilla slider bar/handle textures with the dark/glitchy style.
- * Both drawGuiTexture calls in {@code renderWidget} are redirected; the two
- * variants are told apart by the texture id (bar vs handle).
+ * Replaces the vanilla slider bar/handle textures with KineticsLabs Neobrutalist style.
  */
 @Mixin(SliderWidget.class)
 public abstract class SliderWidgetMixin {
@@ -21,25 +22,34 @@ public abstract class SliderWidgetMixin {
     @Shadow
     protected double value;
 
+    @Unique
+    private double kinetic$lastTickVal;
+
     @Redirect(method = "renderWidget", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lnet/minecraft/util/Identifier;IIII)V"))
     private void kinetic$sliderRender(DrawContext context, Identifier texture, int x, int y, int width, int height) {
         if (texture.getPath().contains("handle")) {
-            // Knob: centered on the vanilla handle position, 10x10.
+            // Knob: square brutalist knob with black border
             int knobSize = 10;
             int knobX = x - (knobSize - 8) / 2;
             int knobY = y + (height - knobSize) / 2;
-            GuiUtil.rect(context, knobX, knobY, knobSize, knobSize, GuiUtil.KNOB);
-            GuiUtil.border(context, knobX, knobY, knobSize, knobSize, GuiUtil.BG_DARK);
+            GuiUtil.brutalBox(context, knobX, knobY, knobSize, knobSize, GuiUtil.ACCENT_CYAN, 0xFF000000, 0xFF000000, 1);
         } else {
             // Track with fill to the current value.
             int trackY = y + height / 2 - 2;
-            GuiUtil.rect(context, x, trackY, width, 4, GuiUtil.TRACK);
+            GuiUtil.rect(context, x, trackY, width, 5, 0xFF000000);
+            GuiUtil.border(context, x, trackY, width, 5, GuiUtil.BORDER_SLATE);
             int fillWidth = (int) (width * this.value);
             if (fillWidth > 0) {
-                GuiUtil.rect(context, x, trackY, fillWidth, 4, GuiUtil.ACCENT);
+                GuiUtil.rect(context, x, trackY, fillWidth, 5, GuiUtil.ACCENT_CYAN);
             }
-            int knobX = x + fillWidth - 1;
-            GuiUtil.rect(context, knobX - 2, trackY - 2, 4, 8, GuiUtil.KNOB);
+        }
+    }
+
+    @Inject(method = "setValue", at = @At("HEAD"))
+    private void kinetic$onSetValue(double val, CallbackInfo ci) {
+        if (Math.abs(val - kinetic$lastTickVal) > 0.05) {
+            kinetic$lastTickVal = val;
+            SoundSynthesizer.INSTANCE.playTick();
         }
     }
 }
