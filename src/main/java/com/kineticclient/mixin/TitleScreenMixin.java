@@ -92,29 +92,14 @@ public abstract class TitleScreenMixin {
     @Unique
     private void drawHero(DrawContext context, MinecraftClient mc, int width, int height) {
         int centerX = width / 2;
-        int heroY = Math.max(34, height / 4 - 36);
-
-        // Tag Pills Row
-        int tagY = heroY;
-        int t1W = mc.textRenderer.getWidth("MINECRAFT UTILITY CLIENT") + 8;
-        int t2W = mc.textRenderer.getWidth("CLIENT-SIDE ONLY") + 8;
-        int t3W = mc.textRenderer.getWidth("OPEN RIGHT-SHIFT") + 8;
-        int totalTagsW = t1W + t2W + t3W + 12;
-        int tagStartX = centerX - totalTagsW / 2;
-
-        GuiUtil.tagPill(context, mc.textRenderer, "MINECRAFT UTILITY CLIENT", tagStartX, tagY, GuiUtil.ACCENT_PURPLE, GuiUtil.TEXT_BLACK, 0xFF000000);
-        GuiUtil.tagPill(context, mc.textRenderer, "CLIENT-SIDE ONLY", tagStartX + t1W + 6, tagY, GuiUtil.ACCENT_CYAN, GuiUtil.TEXT_BLACK, 0xFF000000);
-        GuiUtil.tagPill(context, mc.textRenderer, "OPEN RIGHT-SHIFT", tagStartX + t1W + t2W + 12, tagY, 0xFFFFFFFF, GuiUtil.TEXT_BLACK, 0xFF000000);
+        int heroY = Math.max(38, height / 4 - 20);
 
         // Giant Title: KINETIC CLIENT
-        int titleY = heroY + 18;
-        String line1 = "KINETIC CLIENT";
-        GuiUtil.textGlitchCentered(context, mc.textRenderer, line1, centerX, titleY);
+        GuiUtil.textGlitchCentered(context, mc.textRenderer, "KINETIC CLIENT", centerX, heroY);
 
         // Subtitle
-        int subY = titleY + 14;
         String desc = "High-performance Fabric utility client for anarchy servers";
-        GuiUtil.textCentered(context, mc.textRenderer, desc, centerX, subY, GuiUtil.TEXT_SLATE);
+        GuiUtil.textCentered(context, mc.textRenderer, desc, centerX, heroY + 14, GuiUtil.TEXT_SLATE);
     }
 
     @Inject(method = "renderPanoramaBackground", at = @At("HEAD"), cancellable = true)
