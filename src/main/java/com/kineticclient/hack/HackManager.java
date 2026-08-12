@@ -5,6 +5,7 @@ import com.kineticclient.hack.impl.AimBot;
 import com.kineticclient.hack.impl.AutoClicker;
 import com.kineticclient.hack.impl.ElytraFlight;
 import com.kineticclient.hack.impl.HealthBars;
+import com.kineticclient.hack.impl.HighJump;
 import com.kineticclient.hack.impl.Keypresser;
 import com.kineticclient.hack.impl.KillAura;
 import com.kineticclient.hack.impl.NightVision;
@@ -40,6 +41,7 @@ public enum HackManager {
         register(new NoFall(), HackCategory.MOVEMENT);
         register(new NoHunger(), HackCategory.MOVEMENT);
         register(new Speed(), HackCategory.MOVEMENT);
+        register(new HighJump(), HackCategory.MOVEMENT);
         register(new ElytraFlight(), HackCategory.MOVEMENT);
         register(new Tunneler(), HackCategory.MOVEMENT);
         register(new NightVision(), HackCategory.RENDER);

@@ -50,6 +50,9 @@ configurable in-game menu, opened with **right Shift**, with three features:
   player skins that are not in the tab list).
 - **Speed** — multiplies your base movement speed (applies to walking and
   sprinting; restored when disabled).
+- **HighJump** — jump higher than normal: **Multiplier** mode scales your
+  jump velocity (1.0x to 10.0x), while **Height** mode lets you target a specific
+  peak jump height in blocks (1.0 to 20.0 blocks). Pairs great with NoFall.
 - **NoHunger** — prevents most hunger drain, **including on servers**:
   cancels the `START_SPRINTING` packet (no per-tick sprint exhaustion — you
   still sprint locally) and pretends to be airborne while standing so the
