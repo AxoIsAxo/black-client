@@ -57,15 +57,16 @@ jobs:
           git tag -f latest HEAD
           git push origin -f latest
 
-      - name: Create New Release (Named After Commit)
+      - name: Create Release (Commit)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}-${{ steps.commit_info.outputs.short_sha }}
-          name: "${{ steps.commit_info.outputs.subject }}"
+          tag_name: ${{ steps.commit_info.outputs.short_sha }}
+          name: "${{ steps.commit_info.outputs.short_sha }}"
           body: |
-            ### ⚡ Kinetic Client — ${{ steps.commit_info.outputs.subject }}
-            - **Commit**: `${{ github.sha }}` (`${{ steps.commit_info.outputs.short_sha }}`)
+            ### ⚡ Kinetic Client — `${{ steps.commit_info.outputs.short_sha }}`
+            - **Commit Message**: ${{ steps.commit_info.outputs.subject }}
+            - **Full SHA**: `${{ github.sha }}`
             - **CI Run**: [#${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             - **Branch**: `${{ github.ref_name }}`
             
@@ -80,18 +81,17 @@ jobs:
             !build/libs/*-dev.jar
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update Kinetic Client (Latest) Release
+      - name: Update Release (Latest)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: "Kinetic Client (Latest)"
+          name: "Latest"
           body: |
             ### ⚡ Kinetic Client (Latest Build)
-            - **Latest Commit**: ${{ steps.commit_info.outputs.subject }} (`${{ steps.commit_info.outputs.short_sha }}`)
+            - **Latest Commit**: `${{ steps.commit_info.outputs.short_sha }}` — ${{ steps.commit_info.outputs.subject }}
             - **Full Commit**: `${{ github.sha }}`
             - **CI Run**: [#${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            - **Branch**: `${{ github.ref_name }}`
             
             Always points to the latest build on `main`.
           draft: false
