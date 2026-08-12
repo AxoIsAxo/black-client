@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,9 +26,27 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Upload jar
+      - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
           name: kineticclient
-          path: build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-dev.jar
           if-no-files-found: error
+
+      - name: Release jar
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Kinetic Client (Latest)
+          draft: false
+          prerelease: false
+          files: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-dev.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
